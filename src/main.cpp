@@ -1,18 +1,67 @@
 #include <Arduino.h>
+#include <SPI.h>
+#include <Wire.h>
+#include <Adafruit_GFX.h>
+#include <Adafruit_SSD1306.h>
+#include <SdFat.h>
+#include <vs1053_SdFat.h>
+#include "arcana_logo.h"
+#include "ssd1306_constants.h"
+#include "scrolling_list.h"
 
-// put function declarations here:
-int myFunction(int, int);
+// Declaration for an SSD1306 display connected to I2C (SDA, SCL pins)
+// The pins for I2C are defined by the Wire-library.
+// On an arduino UNO:       A4(SDA), A5(SCL)
+// On an arduino MEGA 2560: 20(SDA), 21(SCL)
+// On an arduino LEONARDO:   2(SDA),  3(SCL), ...
+#define OLED_RESET -1        // Reset pin # (or -1 if sharing Arduino reset pin)
+#define SCREEN_ADDRESS 0x3C  ///< See datasheet for Address; 0x3D for 128x64, 0x3C for 128x32
+Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
+
+Bas::ScrollingList scrollingList;
 
 void setup() {
-  // put your setup code here, to run once:
-  int result = myFunction(2, 3);
+	Serial.begin(9600);
+
+	const char* myItems[] = { "[ Directory1 ]", "[ Directory2 ]", "Tsardas.mp3", "Filename 1.mp3", "Filename 2.mp3", "anotherfile.txt" };
+	scrollingList.begin();
+	scrollingList.populate(myItems, sizeof(myItems) / sizeof(myItems[0]));
+
+	// SSD1306_SWITCHCAPVCC = generate display voltage from 3.3V internally
+  	if (!display.begin(SSD1306_SWITCHCAPVCC, SCREEN_ADDRESS)) {
+    	Serial.println(F("SSD1306 allocation failed"));
+    	for (;;)
+      	;  // Don't proceed, loop forever
+  	}
+
+	display.clearDisplay();
+	display.drawBitmap(0,0, arcanaLogo, ARCANA_LOGO_WIDTH, ARCANA_LOGO_HEIGHT, 1);
+	display.setTextSize(1);
+	const char * versionText = "Vox v1.0.0";
+
+	display.setCursor(SCREEN_WIDTH - strlen(versionText) * CHARACTER_WIDTH, SCREEN_HEIGHT - CHARACTER_HEIGHT);
+	display.cp437(true);
+	display.setTextColor(SSD1306_WHITE);
+	display.write(versionText);
+
+	display.display();
+  	delay(1000);
+	display.clearDisplay();
+	display.display();
 }
 
 void loop() {
-  // put your main code here, to run repeatedly:
-}
+	for (size_t i = 0; i < scrollingList.getNumItems(); i++)
+	{
+		scrollingList.writeToDisplay(display);
+		delay(1000);
+		scrollingList.nextItem();
+	}
 
-// put function definitions here:
-int myFunction(int x, int y) {
-  return x + y;
+	for (int i = scrollingList.getNumItems() - 1; i >= 0; i--)
+	{
+		scrollingList.writeToDisplay(display);
+		delay(1000);
+		scrollingList.previousItem();
+	}
 }
