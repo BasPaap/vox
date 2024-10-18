@@ -23,6 +23,8 @@ namespace Bas
 		int16_t getListHeight();
 		int16_t getMinYPosition();
 		int16_t getMaxYPosition();
+		int16_t getSmoothListYPosition(int16_t cursorY);
+
 		uint8_t textSize = 1;
 		size_t selectedItemIndex = 0;
 		static const int maxItems = 20;
@@ -33,9 +35,8 @@ namespace Bas
 	public:
 		ScrollingList(LogLevel logLevel = LogLevel::none);
 		void begin();
-		void update();
 		void populate(const char* items[], size_t count);
-		void writeToDisplay(Adafruit_SSD1306 &display);
+		void update(Adafruit_SSD1306 &display);
 		void nextItem();
 		void previousItem();
 		size_t getNumItems();

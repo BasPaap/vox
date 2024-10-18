@@ -5,6 +5,8 @@
 #include <Adafruit_SSD1306.h>
 #include <SdFat.h>
 #include <vs1053_SdFat.h>
+#include <Bas.Button.h>
+
 #include "arcana_logo.h"
 #include "ssd1306_constants.h"
 #include "scrolling_list.h"
@@ -19,21 +21,31 @@
 Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
 
 Bas::ScrollingList scrollingList;
+Bas::Button upButton(A1, 20);
+Bas::Button downButton(A0, 20);
 
-void setup() {
-	Serial.begin(9600);
+void onUpButtonPressed()
+{
+	scrollingList.previousItem();
+}
 
-	const char* myItems[] = { "[ Directory1 ]", "[ Directory2 ]", "Tsardas.mp3", "Filename 1.mp3", "Filename 2.mp3", "anotherfile.txt" };
-	scrollingList.begin();
-	scrollingList.populate(myItems, sizeof(myItems) / sizeof(myItems[0]));
+void onDownButtonPressed()
+{
+	scrollingList.nextItem();
+}
 
+void initializeDisplay()
+{
 	// SSD1306_SWITCHCAPVCC = generate display voltage from 3.3V internally
   	if (!display.begin(SSD1306_SWITCHCAPVCC, SCREEN_ADDRESS)) {
     	Serial.println(F("SSD1306 allocation failed"));
     	for (;;)
       	;  // Don't proceed, loop forever
   	}
+}
 
+void showSplashScreen()
+{
 	display.clearDisplay();
 	display.drawBitmap(0,0, arcanaLogo, ARCANA_LOGO_WIDTH, ARCANA_LOGO_HEIGHT, 1);
 	display.setTextSize(1);
@@ -46,22 +58,24 @@ void setup() {
 
 	display.display();
   	delay(1000);
-	display.clearDisplay();
-	display.display();
+}
+
+void setup() {
+	Serial.begin(9600);
+
+	upButton.begin(onUpButtonPressed);
+	downButton.begin(onDownButtonPressed);
+
+	const char* myItems[] = { "[ Directory1 ]", "[ Directory2 ]", "Tsardas.mp3", "Filename 1.mp3", "Filename 2.mp3", "anotherfile.txt" };
+	scrollingList.begin();
+	scrollingList.populate(myItems, sizeof(myItems) / sizeof(myItems[0]));
+
+	initializeDisplay();
+	showSplashScreen();
 }
 
 void loop() {
-	for (size_t i = 0; i < scrollingList.getNumItems(); i++)
-	{
-		scrollingList.writeToDisplay(display);
-		delay(1000);
-		scrollingList.nextItem();
-	}
-
-	for (int i = scrollingList.getNumItems() - 1; i >= 0; i--)
-	{
-		scrollingList.writeToDisplay(display);
-		delay(1000);
-		scrollingList.previousItem();
-	}
+	upButton.update();
+	downButton.update();
+	scrollingList.update(display);
 }

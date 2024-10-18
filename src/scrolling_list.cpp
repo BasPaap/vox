@@ -20,6 +20,20 @@ int16_t Bas::ScrollingList::getMaxYPosition()
 	return 0;
 }
 
+int16_t Bas::ScrollingList::getSmoothListYPosition(int16_t cursorY)
+{
+	int16_t unconstrainedTargetYPosition = getCenterYPosition() - (selectedItemIndex * CHARACTER_HEIGHT * textSize);
+	int16_t targetYPosition = constrain(unconstrainedTargetYPosition, getMinYPosition(), getMaxYPosition());
+	int16_t currentListYPosition = cursorY - getListHeight();
+
+	if (currentListYPosition != targetYPosition)
+	{
+		currentListYPosition += targetYPosition > currentListYPosition ? 1 : -1;
+	}
+
+	return currentListYPosition;
+}
+
 Bas::ScrollingList::ScrollingList(LogLevel logLevel) : logLevel{ logLevel }
 {
 }
@@ -30,10 +44,6 @@ void Bas::ScrollingList::begin()
 	{
 		Serial.println("Initializing Scrolling List");
 	}
-}
-
-void Bas::ScrollingList::update()
-{
 }
 
 void Bas::ScrollingList::populate(const char* items[], size_t numItems)
@@ -56,14 +66,12 @@ void Bas::ScrollingList::populate(const char* items[], size_t numItems)
 	this->numItems = cappedNumItems;
 }
 
-void Bas::ScrollingList::writeToDisplay(Adafruit_SSD1306 &display)
+void Bas::ScrollingList::update(Adafruit_SSD1306 &display)
 {
 	display.clearDisplay();
 	display.setTextWrap(false);
 	display.setTextSize(textSize);
-
-	int16_t listYPosition = getCenterYPosition() - (selectedItemIndex * CHARACTER_HEIGHT * textSize);
-	display.setCursor(0, constrain(listYPosition, getMinYPosition(), getMaxYPosition()));
+	display.setCursor(0, getSmoothListYPosition(display.getCursorY()));	// Smoothly scroll the list to keep the selected item in view.
 
 	for (size_t i = 0; i < numItems; i++)
 	{
