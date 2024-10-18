@@ -27,7 +27,19 @@ void Bas::ScrollingList::updateSmoothListYPosition()
 
 	if (currentListYPosition != targetYPosition)
 	{
-		int incrementValue = (abs(currentListYPosition - targetYPosition) >= CHARACTER_HEIGHT) ? 2 : 1; // If the list is getting too far behind the target position, increase the scroll speed.
+		int16_t distance = abs(currentListYPosition - targetYPosition);
+		int incrementValue;
+
+		// If the list is getting too far behind the target position, increase the scroll speed.
+		if (distance > CHARACTER_HEIGHT * 1.5)
+			incrementValue = 3;
+		else if (distance >= CHARACTER_HEIGHT)
+			incrementValue = 2;
+		else
+			incrementValue = 1;
+
+		Serial.println(incrementValue);
+
 		currentListYPosition += targetYPosition > currentListYPosition ? incrementValue : 0 - incrementValue;
 	}
 }
