@@ -24,11 +24,11 @@ void Bas::ScrollingList::updateSmoothListYPosition()
 {
 	int16_t unconstrainedTargetYPosition = getCenterYPosition() - (selectedItemIndex * CHARACTER_HEIGHT * textSize);
 	int16_t targetYPosition = constrain(unconstrainedTargetYPosition, getMinYPosition(), getMaxYPosition());
-	//int16_t currentListYPosition = cursorY - getListHeight();
 
 	if (currentListYPosition != targetYPosition)
 	{
-		currentListYPosition += targetYPosition > currentListYPosition ? 1 : -1;
+		int incrementValue = (abs(currentListYPosition - targetYPosition) >= CHARACTER_HEIGHT) ? 2 : 1; // If the list is getting too far behind the target position, increase the scroll speed.
+		currentListYPosition += targetYPosition > currentListYPosition ? incrementValue : 0 - incrementValue;
 	}
 }
 
