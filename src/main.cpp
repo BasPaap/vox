@@ -66,7 +66,7 @@ void setup() {
 	upButton.begin(onUpButtonPressed);
 	downButton.begin(onDownButtonPressed);
 
-	const char* myItems[] = { "[ Directory1 ]", "[ Directory2 ]", "Tsardas.mp3", "Filename 1.mp3", "Filename 2.mp3", "anotherfile.txt" };
+	const char* myItems[] = { "[ Directory1 ]", "[ Directory2 ]", "Tsardas.mp3", "Filename 1.mp3", "Filename 2.mp3", "anotherfile.txt", "Tsardas.mp3", "Filename 1.mp3", "Filename 2.mp3", "anotherfile.txt" };
 	scrollingList.begin();
 	scrollingList.populate(myItems, sizeof(myItems) / sizeof(myItems[0]));
 

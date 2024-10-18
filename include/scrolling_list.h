@@ -23,8 +23,9 @@ namespace Bas
 		int16_t getListHeight();
 		int16_t getMinYPosition();
 		int16_t getMaxYPosition();
-		int16_t getSmoothListYPosition(int16_t cursorY);
+		void updateSmoothListYPosition();
 
+		int16_t currentListYPosition = 0;
 		uint8_t textSize = 1;
 		size_t selectedItemIndex = 0;
 		static const int maxItems = 20;
