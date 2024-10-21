@@ -23,6 +23,7 @@ namespace Bas
             void write(const uint8_t *buffer, size_t size) override;
             void write(const char *buffer, size_t size) override;
             void update() override;
+            void dim(bool isEnabled = true) override;
     };
 }
 

@@ -22,6 +22,7 @@ namespace Bas
             virtual void write(const uint8_t *buffer, size_t size) = 0;
             virtual void write(const char *buffer, size_t size) = 0;
             virtual void update() = 0;
+            virtual void dim(bool isEnabled = true) = 0;
     };
 }
 

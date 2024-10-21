@@ -56,3 +56,9 @@ void Bas::AdafruitSSD1306TextDisplay::update()
 {
     display.display();
 }
+
+void Bas::AdafruitSSD1306TextDisplay::dim(bool isEnabled)
+{
+    display.dim(isEnabled);
+}
+
