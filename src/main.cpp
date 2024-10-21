@@ -1,14 +1,15 @@
 #include <Arduino.h>
 #include <SPI.h>
 #include <Wire.h>
-#include <Adafruit_GFX.h>
-#include <Adafruit_SSD1306.h>
+// #include <Adafruit_GFX.h>
+// #include <Adafruit_SSD1306.h>
 #include <SdFat.h>
 #include <vs1053_SdFat.h>
 #include <Bas.Button.h>
 
 #include "arcana_logo.h"
 #include "ssd1306_constants.h"
+#include "adafruit_SSD1306_text_display.h"
 #include "scrolling_list.h"
 
 // Declaration for an SSD1306 display connected to I2C (SDA, SCL pins)
@@ -23,6 +24,7 @@ Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
 Bas::ScrollingList scrollingList;
 Bas::Button upButton(A1, 20);
 Bas::Button downButton(A0, 20);
+Bas::AdafruitSSD1306TextDisplay textDisplay(display);
 
 void onUpButtonPressed()
 {
@@ -77,5 +79,5 @@ void setup() {
 void loop() {
 	upButton.update();
 	downButton.update();
-	scrollingList.update(display);
+	scrollingList.update(textDisplay);
 }

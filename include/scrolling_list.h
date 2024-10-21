@@ -7,7 +7,7 @@
 #include "WProgram.h"
 #endif
 
-#include<Adafruit_SSD1306.h>
+#include "text_display.h"
 #include "ssd1306_constants.h"
 
 namespace Bas
@@ -37,7 +37,7 @@ namespace Bas
 		ScrollingList(LogLevel logLevel = LogLevel::none);
 		void begin();
 		void populate(const char* items[], size_t count);
-		void update(Adafruit_SSD1306 &display);
+		void update(TextDisplay &display);
 		void nextItem();
 		void previousItem();
 		size_t getNumItems();

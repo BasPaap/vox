@@ -76,30 +76,30 @@ void Bas::ScrollingList::populate(const char* items[], size_t numItems)
 	this->numItems = cappedNumItems;
 }
 
-void Bas::ScrollingList::update(Adafruit_SSD1306 &display)
+void Bas::ScrollingList::update(TextDisplay &display)
 {
-	display.clearDisplay();
-	display.setTextWrap(false);
+	display.clear();
+	display.enableWrapping(false);
 	display.setTextSize(textSize);
 	updateSmoothListYPosition(); // Smoothly scroll the list to keep the selected item in view.
-	display.setCursor(0, currentListYPosition);
+	display.setCursorPosition(0, currentListYPosition);
 
 	for (size_t i = 0; i < numItems; i++)
 	{
 		if (selectedItemIndex == i)
 		{
-			display.setTextColor(SSD1306_BLACK, SSD1306_WHITE);	// If this is the selected item, print it with the inversed colors.
+			display.invertTextColor(); // If this is the selected item, print it with the inversed colors.
 		}
 		else
 		{
-			display.setTextColor(SSD1306_WHITE, SSD1306_BLACK); // Otherwise, print it with normal white on black.
+			display.invertTextColor(false); // Otherwise, print it with normal white on black.
 		}
 
 		display.write(items[i]);
 		display.write('\n');
 	}
 
-	display.display();
+	display.update();
 }
 
 void Bas::ScrollingList::nextItem()
