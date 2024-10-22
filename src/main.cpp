@@ -21,10 +21,10 @@
 #define SCREEN_ADDRESS 0x3C  ///< See datasheet for Address; 0x3D for 128x64, 0x3C for 128x32
 Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
 
-Bas::ScrollingList scrollingList;
+Bas::AdafruitSSD1306TextDisplay textDisplay(SCREEN_WIDTH, SCREEN_HEIGHT, display);
+Bas::ScrollingList scrollingList(textDisplay);
 Bas::Button upButton(A1, 20);
 Bas::Button downButton(A0, 20);
-Bas::AdafruitSSD1306TextDisplay textDisplay(display);
 
 void onUpButtonPressed()
 {
@@ -79,5 +79,5 @@ void setup() {
 void loop() {
 	upButton.update();
 	downButton.update();
-	scrollingList.update(textDisplay);
+	scrollingList.update();
 }

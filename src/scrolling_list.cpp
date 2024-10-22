@@ -2,28 +2,23 @@
 
 int16_t Bas::ScrollingList::getCenterYPosition()
 {
-	return (SCREEN_HEIGHT / 2) - ((CHARACTER_HEIGHT * textSize) /2);
+	return (display.getHeight() / 2) - (display.getCharacterHeight() /2);
 }
 
 int16_t Bas::ScrollingList::getListHeight()
 {
-	return CHARACTER_HEIGHT * textSize * numItems;
+	return display.getCharacterHeight() * numItems;
 }
 
 int16_t Bas::ScrollingList::getMinYPosition()
 {
-	return SCREEN_HEIGHT <= getListHeight() ? SCREEN_HEIGHT - getListHeight() : 0;
-}
-
-int16_t Bas::ScrollingList::getMaxYPosition()
-{
-	return 0;
+	return display.getHeight() <= getListHeight() ? display.getHeight() - getListHeight() : 0;
 }
 
 void Bas::ScrollingList::updateSmoothListYPosition()
 {
-	int16_t unconstrainedTargetYPosition = getCenterYPosition() - (selectedItemIndex * CHARACTER_HEIGHT * textSize);
-	int16_t targetYPosition = constrain(unconstrainedTargetYPosition, getMinYPosition(), getMaxYPosition());
+	uint16_t unconstrainedTargetYPosition = getCenterYPosition() - (selectedItemIndex * display.getCharacterHeight());
+	uint16_t targetYPosition = constrain(unconstrainedTargetYPosition, getMinYPosition(), maxYPosition);
 
 	if (currentListYPosition != targetYPosition)
 	{
@@ -31,9 +26,9 @@ void Bas::ScrollingList::updateSmoothListYPosition()
 		int incrementValue;
 
 		// If the list is getting too far behind the target position, increase the scroll speed.
-		if (distance > CHARACTER_HEIGHT * 1.5)
+		if (distance > display.getCharacterHeight() * 1.5)
 			incrementValue = 3;
-		else if (distance >= CHARACTER_HEIGHT)
+		else if (distance >= display.getCharacterHeight())
 			incrementValue = 2;
 		else
 			incrementValue = 1;
@@ -44,7 +39,7 @@ void Bas::ScrollingList::updateSmoothListYPosition()
 	}
 }
 
-Bas::ScrollingList::ScrollingList(LogLevel logLevel) : logLevel{ logLevel }
+Bas::ScrollingList::ScrollingList(TextDisplay &display, LogLevel logLevel) : display{ display }, logLevel{ logLevel }
 {
 }
 
@@ -76,11 +71,11 @@ void Bas::ScrollingList::populate(const char* items[], size_t numItems)
 	this->numItems = cappedNumItems;
 }
 
-void Bas::ScrollingList::update(TextDisplay &display)
+void Bas::ScrollingList::update()
 {
 	display.clear();
 	display.enableWrapping(false);
-	display.setTextSize(textSize);
+	display.setTextSize(1);
 	updateSmoothListYPosition(); // Smoothly scroll the list to keep the selected item in view.
 	display.setCursorPosition(0, currentListYPosition);
 

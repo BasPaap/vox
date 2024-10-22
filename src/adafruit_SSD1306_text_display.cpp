@@ -1,5 +1,25 @@
 #include "adafruit_SSD1306_text_display.h"
 
+int8_t Bas::AdafruitSSD1306TextDisplay::getWidth()
+{
+    return width;
+}
+
+int8_t Bas::AdafruitSSD1306TextDisplay::getHeight()
+{
+    return height;
+}
+
+int16_t Bas::AdafruitSSD1306TextDisplay::getCharacterWidth()
+{
+    return fullScaleCharacterWidth * textSize;
+}
+
+int16_t Bas::AdafruitSSD1306TextDisplay::getCharacterHeight()
+{
+    return fullScaleCharacterHeight * textSize;
+}
+
 void Bas::AdafruitSSD1306TextDisplay::clear()
 {
     display.clearDisplay();
@@ -12,7 +32,8 @@ void Bas::AdafruitSSD1306TextDisplay::enableWrapping(bool isEnabled)
 
 void Bas::AdafruitSSD1306TextDisplay::setTextSize(uint8_t size)
 {
-    display.setTextSize(size);
+    textSize = size;
+    display.setTextSize(textSize);
 }
 
 void Bas::AdafruitSSD1306TextDisplay::setCursorPosition(int16_t x, int16_t y)
