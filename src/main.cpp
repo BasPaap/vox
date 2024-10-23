@@ -18,8 +18,8 @@
 // On an arduino UNO:       A4(SDA), A5(SCL)
 // On an arduino MEGA 2560: 20(SDA), 21(SCL)
 // On an arduino LEONARDO:   2(SDA),  3(SCL), ...
-#define OLED_RESET -1        // Reset pin # (or -1 if sharing Arduino reset pin)
-#define SCREEN_ADDRESS 0x3C  ///< See datasheet for Address; 0x3D for 128x64, 0x3C for 128x32
+#define OLED_RESET -1		// Reset pin # (or -1 if sharing Arduino reset pin)
+#define SCREEN_ADDRESS 0x3C ///< See datasheet for Address; 0x3D for 128x64, 0x3C for 128x32
 Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
 
 Bas::AdafruitSSD1306TextDisplay textDisplay(SCREEN_WIDTH, SCREEN_HEIGHT, display);
@@ -36,32 +36,41 @@ void onActivity()
 
 void onUpButtonPressed()
 {
+	if (inactivityTimer.getIsActive())
+	{
+		scrollingList.previousItem();
+	}
+
 	onActivity();
-	scrollingList.previousItem();
 }
 
 void onDownButtonPressed()
 {
+	if (inactivityTimer.getIsActive())
+	{
+		scrollingList.nextItem();
+	}
+
 	onActivity();
-	scrollingList.nextItem();
 }
 
 void initializeDisplay()
 {
 	// SSD1306_SWITCHCAPVCC = generate display voltage from 3.3V internally
-  	if (!display.begin(SSD1306_SWITCHCAPVCC, SCREEN_ADDRESS)) {
-    	Serial.println(F("SSD1306 allocation failed"));
-    	for (;;)
-      	;  // Don't proceed, loop forever
-  	}
+	if (!display.begin(SSD1306_SWITCHCAPVCC, SCREEN_ADDRESS))
+	{
+		Serial.println(F("SSD1306 allocation failed"));
+		for (;;)
+			; // Don't proceed, loop forever
+	}
 }
 
 void showSplashScreen()
 {
 	display.clearDisplay();
-	display.drawBitmap(0,0, arcanaLogo, ARCANA_LOGO_WIDTH, ARCANA_LOGO_HEIGHT, 1);
+	display.drawBitmap(0, 0, arcanaLogo, ARCANA_LOGO_WIDTH, ARCANA_LOGO_HEIGHT, 1);
 	display.setTextSize(1);
-	const char * versionText = "Vox v1.0.0";
+	const char *versionText = "Vox v1.0.0";
 
 	display.setCursor(SCREEN_WIDTH - strlen(versionText) * CHARACTER_WIDTH, SCREEN_HEIGHT - CHARACTER_HEIGHT);
 	display.cp437(true);
@@ -69,7 +78,7 @@ void showSplashScreen()
 	display.write(versionText);
 
 	display.display();
-  	delay(1000);
+	delay(1000);
 }
 
 void onInactivity()
@@ -77,7 +86,8 @@ void onInactivity()
 	display.dim(true);
 }
 
-void setup() {
+void setup()
+{
 	Serial.begin(9600);
 
 	inactivityTimer.begin(5000, onInactivity);
@@ -85,7 +95,7 @@ void setup() {
 	upButton.begin(onUpButtonPressed);
 	downButton.begin(onDownButtonPressed);
 
-	const char* myItems[] = { "[ Directory1 ]", "[ Directory2 ]", "Tsardas.mp3", "Filename 1.mp3", "Filename 2.mp3", "anotherfile.txt" };
+	const char *myItems[] = {"[ Directory1 ]", "[ Directory2 ]", "Tsardas.mp3", "Filename 1.mp3", "Filename 2.mp3", "anotherfile.txt"};
 	scrollingList.begin();
 	scrollingList.populate(myItems, sizeof(myItems) / sizeof(myItems[0]));
 
@@ -93,7 +103,8 @@ void setup() {
 	showSplashScreen();
 }
 
-void loop() {
+void loop()
+{
 	inactivityTimer.update();
 	upButton.update();
 	downButton.update();

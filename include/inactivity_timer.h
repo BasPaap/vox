@@ -22,7 +22,7 @@ namespace Bas
 
 	private:
 		CallbackCaller callbackCaller;
-		bool isRunning = false;
+		bool isActive = false;
 		unsigned long duration;
 		LogLevel logLevel;
 		unsigned long startTime;
@@ -40,12 +40,13 @@ namespace Bas
 
 			this->duration = duration;
 			this->callbackCaller.begin(callback);
-			isRunning = true;
+			isActive = true;
 			reset();
 		}
 
 		void update();
 		void reset();
+		bool getIsActive();
 	};
 }
 

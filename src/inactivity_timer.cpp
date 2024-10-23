@@ -8,9 +8,9 @@ void Bas::InactivityTimer::update()
 {
 	unsigned long now = millis();
 
-	if (isRunning && now - startTime >= duration)
+	if (isActive && now - startTime >= duration)
 	{
-		isRunning = false;
+		isActive = false;
 		if (this->logLevel == LogLevel::normal)
 		{
 			Serial.print("InactivityTimer ran out after ");
@@ -24,6 +24,11 @@ void Bas::InactivityTimer::update()
 
 void Bas::InactivityTimer::reset()
 {
-	isRunning = true;
+	isActive = true;
 	startTime = millis();
+}
+
+bool Bas::InactivityTimer::getIsActive()
+{
+	return isActive;
 }
