@@ -10,6 +10,7 @@
 #include "arcana_logo.h"
 #include "ssd1306_constants.h"
 #include "scrolling_list.h"
+#include "inactivity_timer.h"
 
 // Declaration for an SSD1306 display connected to I2C (SDA, SCL pins)
 // The pins for I2C are defined by the Wire-library.
@@ -23,14 +24,23 @@ Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
 Bas::ScrollingList scrollingList;
 Bas::Button upButton(A1, 20);
 Bas::Button downButton(A0, 20);
+Bas::InactivityTimer inactivityTimer;
+
+void onActivity()
+{
+	inactivityTimer.reset();
+	display.dim(false);
+}
 
 void onUpButtonPressed()
 {
+	onActivity();
 	scrollingList.previousItem();
 }
 
 void onDownButtonPressed()
 {
+	onActivity();
 	scrollingList.nextItem();
 }
 
@@ -60,13 +70,20 @@ void showSplashScreen()
   	delay(1000);
 }
 
+void onInactivity()
+{
+	display.dim(true);
+}
+
 void setup() {
 	Serial.begin(9600);
+
+	inactivityTimer.begin(5000, onInactivity);
 
 	upButton.begin(onUpButtonPressed);
 	downButton.begin(onDownButtonPressed);
 
-	const char* myItems[] = { "[ Directory1 ]", "[ Directory2 ]", "Tsardas.mp3", "Filename 1.mp3", "Filename 2.mp3", "anotherfile.txt", "Tsardas.mp3", "Filename 1.mp3", "Filename 2.mp3", "anotherfile.txt" };
+	const char* myItems[] = { "[ Directory1 ]", "[ Directory2 ]", "Tsardas.mp3", "Filename 1.mp3", "Filename 2.mp3", "anotherfile.txt" };
 	scrollingList.begin();
 	scrollingList.populate(myItems, sizeof(myItems) / sizeof(myItems[0]));
 
@@ -75,6 +92,7 @@ void setup() {
 }
 
 void loop() {
+	inactivityTimer.update();
 	upButton.update();
 	downButton.update();
 	scrollingList.update(display);
