@@ -7,8 +7,7 @@
 #include "WProgram.h"
 #endif
 
-#include<Adafruit_SSD1306.h>
-#include "ssd1306_constants.h"
+#include "text_display.h"
 
 namespace Bas
 {
@@ -18,26 +17,25 @@ namespace Bas
 		enum class LogLevel { none = 0, normal };
 
 	private:
+		TextDisplay &display;
 		LogLevel logLevel;
-		int16_t getCenterYPosition();
-		int16_t getListHeight();
-		int16_t getMinYPosition();
-		int16_t getMaxYPosition();
-		void updateSmoothListYPosition();
-
 		int16_t currentListYPosition = 0;
-		uint8_t textSize = 1;
 		size_t selectedItemIndex = 0;
 		static const int maxItems = 20;
 		static const int maxItemLength = 25;
 		char items[maxItems][maxItemLength] = {{ '\0' }};
 		size_t numItems;
+		const int16_t maxYPosition = 0;
+		int16_t getCenterYPosition();
+		int16_t getListHeight();
+		int16_t getMinYPosition();
+		void updateSmoothListYPosition();
 
 	public:
-		ScrollingList(LogLevel logLevel = LogLevel::none);
+		ScrollingList(TextDisplay &display, LogLevel logLevel = LogLevel::none);
 		void begin();
 		void populate(const char* items[], size_t count);
-		void update(Adafruit_SSD1306 &display);
+		void update();
 		void nextItem();
 		void previousItem();
 		size_t getNumItems();
