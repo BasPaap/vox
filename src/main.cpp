@@ -26,6 +26,8 @@ Bas::AdafruitSSD1306TextDisplay textDisplay(SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_
 Bas::ScrollingList scrollingList(textDisplay);
 Bas::Button upButton(A1, 20);
 Bas::Button downButton(A0, 20);
+Bas::Button selectButton(A2, 20);
+
 Bas::InactivityTimer inactivityTimer;
 
 void onActivity()
@@ -49,6 +51,16 @@ void onDownButtonPressed()
 	if (inactivityTimer.getIsActive())
 	{
 		scrollingList.nextItem();
+	}
+
+	onActivity();
+}
+
+void onSelectButtonPressed()
+{
+	if (inactivityTimer.getIsActive())
+	{
+		Serial.println("Select button pressed.");
 	}
 
 	onActivity();
@@ -83,6 +95,7 @@ void setup()
 
 	upButton.begin(onUpButtonPressed);
 	downButton.begin(onDownButtonPressed);
+	selectButton.begin(onSelectButtonPressed);
 
 	const char *myItems[] = {"[ Directory1 ]", "[ Directory2 ]", "Tsardas.mp3", "Filename 1.mp3", "Filename 2.mp3", "anotherfile.txt"};
 	scrollingList.begin();
@@ -98,5 +111,6 @@ void loop()
 	inactivityTimer.update();
 	upButton.update();
 	downButton.update();
+	selectButton.update();
 	scrollingList.update();
 }

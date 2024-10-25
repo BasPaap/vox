@@ -33,8 +33,6 @@ void Bas::ScrollingList::updateSmoothListYPosition()
 		else
 			incrementValue = 1;
 
-		Serial.println(incrementValue);
-
 		currentListYPosition += targetYPosition > currentListYPosition ? incrementValue : 0 - incrementValue;
 	}
 }
