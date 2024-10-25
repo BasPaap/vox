@@ -1,5 +1,9 @@
 #include "adafruit_SSD1306_text_display.h"
 
+void test()
+{
+
+}
 void Bas::AdafruitSSD1306TextDisplay::begin()
 {
 	// SSD1306_SWITCHCAPVCC = generate display voltage from 3.3V internally
@@ -10,6 +14,8 @@ void Bas::AdafruitSSD1306TextDisplay::begin()
 			; // Don't proceed, loop forever
 	}
 }
+
+
 
 int8_t Bas::AdafruitSSD1306TextDisplay::getWidth()
 {
@@ -86,11 +92,26 @@ void Bas::AdafruitSSD1306TextDisplay::write(const char * buffer, size_t size)
 
 void Bas::AdafruitSSD1306TextDisplay::update()
 {
+	if (isDimmed && millis() - dimStartTime > dimDuration)
+	{
+		isDimmed = false;
+		display.ssd1306_command(SSD1306_DISPLAYOFF);
+	}
     display.display();
 }
 
 void Bas::AdafruitSSD1306TextDisplay::sleep(bool isSleeping)
 {
-	display.ssd1306_command(isSleeping ? SSD1306_DISPLAYOFF : SSD1306_DISPLAYON);
+	isDimmed = isSleeping;
+	display.dim(isSleeping);
+
+	if (isSleeping)
+	{
+		dimStartTime = millis();
+	}
+	else
+	{
+		display.ssd1306_command(SSD1306_DISPLAYON);
+	}
 }
 

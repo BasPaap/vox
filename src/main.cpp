@@ -91,7 +91,7 @@ void setup()
 {
 	Serial.begin(9600);
 
-	inactivityTimer.begin(5000, onInactivity);
+	inactivityTimer.begin(10000, onInactivity);
 
 	upButton.begin(onUpButtonPressed);
 	downButton.begin(onDownButtonPressed);
