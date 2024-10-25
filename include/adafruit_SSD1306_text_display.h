@@ -12,14 +12,16 @@ namespace Bas
         private:
             int8_t width;
             int8_t height;
+			uint8_t screenAddress;
             int8_t textSize = 1;
+			Adafruit_SSD1306 &display;
             const int8_t fullScaleCharacterWidth = CHARACTER_WIDTH;
             const int8_t fullScaleCharacterHeight = CHARACTER_HEIGHT;
-            Adafruit_SSD1306 &display;
 
         public:
-            AdafruitSSD1306TextDisplay(uint8_t width, uint8_t height, Adafruit_SSD1306 &adafruitSsd1306Display) : width(width), height(height), display(adafruitSsd1306Display) {}
+            AdafruitSSD1306TextDisplay(uint8_t width, uint8_t height, uint8_t screenAddress, Adafruit_SSD1306 &adafruitSsd1306Display) : width(width), height(height), screenAddress(screenAddress), display(adafruitSsd1306Display) {}
 
+			void begin();
             int8_t getWidth() override;
             int8_t getHeight() override;
             int16_t getCharacterWidth() override;

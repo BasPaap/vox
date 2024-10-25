@@ -22,7 +22,7 @@
 #define SCREEN_ADDRESS 0x3C ///< See datasheet for Address; 0x3D for 128x64, 0x3C for 128x32
 Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
 
-Bas::AdafruitSSD1306TextDisplay textDisplay(SCREEN_WIDTH, SCREEN_HEIGHT, display);
+Bas::AdafruitSSD1306TextDisplay textDisplay(SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_ADDRESS, display);
 Bas::ScrollingList scrollingList(textDisplay);
 Bas::Button upButton(A1, 20);
 Bas::Button downButton(A0, 20);
@@ -52,17 +52,6 @@ void onDownButtonPressed()
 	}
 
 	onActivity();
-}
-
-void initializeDisplay()
-{
-	// SSD1306_SWITCHCAPVCC = generate display voltage from 3.3V internally
-	if (!display.begin(SSD1306_SWITCHCAPVCC, SCREEN_ADDRESS))
-	{
-		Serial.println(F("SSD1306 allocation failed"));
-		for (;;)
-			; // Don't proceed, loop forever
-	}
 }
 
 void showSplashScreen()
@@ -99,7 +88,8 @@ void setup()
 	scrollingList.begin();
 	scrollingList.populate(myItems, sizeof(myItems) / sizeof(myItems[0]));
 
-	initializeDisplay();
+	textDisplay.begin();
+
 	showSplashScreen();
 }
 

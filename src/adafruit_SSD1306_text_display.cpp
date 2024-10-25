@@ -1,5 +1,16 @@
 #include "adafruit_SSD1306_text_display.h"
 
+void Bas::AdafruitSSD1306TextDisplay::begin()
+{
+	// SSD1306_SWITCHCAPVCC = generate display voltage from 3.3V internally
+	if (!display.begin(SSD1306_SWITCHCAPVCC, screenAddress))
+	{
+		Serial.println(F("SSD1306 allocation failed"));
+		for (;;)
+			; // Don't proceed, loop forever
+	}
+}
+
 int8_t Bas::AdafruitSSD1306TextDisplay::getWidth()
 {
     return width;
