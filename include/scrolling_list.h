@@ -21,8 +21,8 @@ namespace Bas
 		LogLevel logLevel;
 		int16_t currentListYPosition = 0;
 		size_t selectedItemIndex = 0;
-		static const int maxItems = 20;
-		static const int maxItemLength = 25;
+		static const int maxItems = 50;
+		static const int maxItemLength = 255;
 		char items[maxItems][maxItemLength] = {{ '\0' }};
 		size_t numItems;
 		const int16_t maxYPosition = 0;
