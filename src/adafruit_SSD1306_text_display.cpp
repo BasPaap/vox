@@ -78,8 +78,8 @@ void Bas::AdafruitSSD1306TextDisplay::update()
     display.display();
 }
 
-void Bas::AdafruitSSD1306TextDisplay::dim(bool isEnabled)
+void Bas::AdafruitSSD1306TextDisplay::sleep(bool isSleeping)
 {
-    display.dim(isEnabled);
+	display.ssd1306_command(isSleeping ? SSD1306_DISPLAYOFF : SSD1306_DISPLAYON);
 }
 

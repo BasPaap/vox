@@ -4,7 +4,7 @@
 // #include <Adafruit_GFX.h>
 // #include <Adafruit_SSD1306.h>
 #include <SdFat.h>
-#include <vs1053_SdFat.h>
+//#include <vs1053_SdFat.h>
 #include <Bas.Button.h>
 
 #include "arcana_logo.h"
@@ -31,7 +31,7 @@ Bas::InactivityTimer inactivityTimer;
 void onActivity()
 {
 	inactivityTimer.reset();
-	display.dim(false);
+	textDisplay.sleep(false);
 }
 
 void onUpButtonPressed()
@@ -83,7 +83,7 @@ void showSplashScreen()
 
 void onInactivity()
 {
-	display.dim(true);
+	textDisplay.sleep(true);
 }
 
 void setup()

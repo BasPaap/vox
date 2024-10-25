@@ -17,8 +17,8 @@ int16_t Bas::ScrollingList::getMinYPosition()
 
 void Bas::ScrollingList::updateSmoothListYPosition()
 {
-	uint16_t unconstrainedTargetYPosition = getCenterYPosition() - (selectedItemIndex * display.getCharacterHeight());
-	uint16_t targetYPosition = constrain(unconstrainedTargetYPosition, getMinYPosition(), maxYPosition);
+	int16_t unconstrainedTargetYPosition = getCenterYPosition() - (selectedItemIndex * display.getCharacterHeight());
+	int16_t targetYPosition = constrain(unconstrainedTargetYPosition, getMinYPosition(), maxYPosition);
 
 	if (currentListYPosition != targetYPosition)
 	{
