@@ -49,26 +49,6 @@ void Bas::ScrollingList::begin()
 	}
 }
 
-void Bas::ScrollingList::populate(const char* items[], size_t numItems)
-{
-	size_t cappedNumItems = numItems <= maxItems ? numItems : maxItems;
-
-	if (this->logLevel == LogLevel::normal)
-	{
-		Serial.print("Populating list with ");
-		Serial.print(cappedNumItems);
-		Serial.println(" items.");
-	}
-
-	for (size_t i = 0; i < cappedNumItems; i++)
-	{
-		strncpy(this->items[i], items[i], maxItemLength-1);	// Copy each item string into statically allocated memory
-		this->items[i][maxItemLength -1] = '\0'; // Ensure null termination
-	}
-
-	this->numItems = cappedNumItems;
-}
-
 void Bas::ScrollingList::update()
 {
 	display.clear();
@@ -93,6 +73,25 @@ void Bas::ScrollingList::update()
 	}
 
 	display.update();
+}
+
+void Bas::ScrollingList::clear()
+{
+	for (size_t i = 0; i < numItems; i++)
+	{
+		items[i][0] = '\0';
+	}
+
+	numItems = 0;
+}
+
+void Bas::ScrollingList::addItem(const char *text)
+{
+	if (numItems <= maxItems)
+	{
+		strncpy(items[numItems], text, maxItemLength);
+		numItems++;
+	}
 }
 
 void Bas::ScrollingList::nextItem()

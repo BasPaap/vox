@@ -1,9 +1,9 @@
 #include <Arduino.h>
-#include <SPI.h>
-#include <Wire.h>
+// #include <SPI.h>
+// #include <Wire.h>
 // #include <Adafruit_GFX.h>
 // #include <Adafruit_SSD1306.h>
-#include <SdFat.h>
+// #include <SdFat.h>
 //#include <vs1053_SdFat.h>
 #include <Bas.Button.h>
 
@@ -12,6 +12,8 @@
 #include "adafruit_SSD1306_text_display.h"
 #include "scrolling_list.h"
 #include "inactivity_timer.h"
+#include "sdfat_file_browser.h"
+#include "Common.h"
 
 // Declaration for an SSD1306 display connected to I2C (SDA, SCL pins)
 // The pins for I2C are defined by the Wire-library.
@@ -27,8 +29,10 @@ Bas::ScrollingList scrollingList(textDisplay);
 Bas::Button upButton(A1, 20);
 Bas::Button downButton(A0, 20);
 Bas::Button selectButton(A2, 20);
-
 Bas::InactivityTimer inactivityTimer;
+Bas::SdFatFileBrowser fileBrowser;
+
+const char *versionText = "Vox v1.0.0";
 
 void onActivity()
 {
@@ -71,7 +75,6 @@ void showSplashScreen()
 	display.clearDisplay();
 	display.drawBitmap(0, 0, arcanaLogo, ARCANA_LOGO_WIDTH, ARCANA_LOGO_HEIGHT, 1);
 	display.setTextSize(1);
-	const char *versionText = "Vox v1.0.0";
 
 	display.setCursor(SCREEN_WIDTH - strlen(versionText) * CHARACTER_WIDTH, SCREEN_HEIGHT - CHARACTER_HEIGHT);
 	display.cp437(true);
@@ -87,9 +90,24 @@ void onInactivity()
 	textDisplay.sleep(true);
 }
 
+void waitForSerial()
+{
+	const unsigned long serialWaitDuration = 3000;
+	unsigned long startTime = millis();
+
+	while (!Serial && millis() - startTime < serialWaitDuration)
+	{
+		yield();
+	} // Wait until serial is available, or until the specified	time has elapsed
+}
+
 void setup()
 {
 	Serial.begin(9600);
+	waitForSerial();
+
+	Serial.print(F("Starting "));
+	Serial.println(versionText);
 
 	inactivityTimer.begin(10000, onInactivity);
 
@@ -97,13 +115,35 @@ void setup()
 	downButton.begin(onDownButtonPressed);
 	selectButton.begin(onSelectButtonPressed);
 
-	const char *myItems[] = {"[ Directory1 ]", "[ Directory2 ]", "Tsardas.mp3", "Filename 1.mp3", "Filename 2.mp3", "anotherfile.txt"};
 	scrollingList.begin();
-	scrollingList.populate(myItems, sizeof(myItems) / sizeof(myItems[0]));
 
 	textDisplay.begin();
 
+	fileBrowser.begin();
+
+	populateScrollingList();
+
+	//fileBrowser.goToSubDirectory(8);
+	//fileBrowser.goToParentDirectory();
 	showSplashScreen();
+}
+
+void populateScrollingList()
+{
+	scrollingList.clear();
+
+	if (!fileBrowser.getIsAtRoot())
+	{
+		scrollingList.addItem("[..]");
+	}
+
+	bool isDirectory;
+	char fileName[256];
+	size_t fileNameLength;
+	while (fileBrowser.read(isDirectory, fileName, fileNameLength))
+	{
+		scrollingList.addItem(fileName);
+	}
 }
 
 void loop()

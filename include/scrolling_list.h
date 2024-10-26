@@ -22,7 +22,7 @@ namespace Bas
 		int16_t currentListYPosition = 0;
 		size_t selectedItemIndex = 0;
 		static const int maxItems = 50;
-		static const int maxItemLength = 255;
+		static const int maxItemLength = 256;
 		char items[maxItems][maxItemLength] = {{ '\0' }};
 		size_t numItems;
 		const int16_t maxYPosition = 0;
@@ -34,8 +34,9 @@ namespace Bas
 	public:
 		ScrollingList(TextDisplay &display, LogLevel logLevel = LogLevel::none);
 		void begin();
-		void populate(const char* items[], size_t count);
 		void update();
+		void clear();
+		void addItem(const char* text);
 		void nextItem();
 		void previousItem();
 		size_t getNumItems();
