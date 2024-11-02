@@ -22,7 +22,7 @@ namespace Bas
 		virtual void goToParentDirectory() = 0;
 		virtual bool getIsAtRoot() = 0;
 		virtual char *getCurrentPath() = 0;
-		virtual bool read(bool &isDirectory, char *fileName, size_t &fileNameLength) = 0;
+		virtual bool read(bool &isDirectory, char *fileName) = 0;
 	};
 }
 

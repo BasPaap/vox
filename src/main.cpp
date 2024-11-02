@@ -156,8 +156,7 @@ void populateScrollingList()
 	bool isDirectory;
 	const int maxDirectoryTextLength = 255 + 2 + 1; // max directory name length + brackets + 0 terminator
 	char fileName[maxDirectoryTextLength];
-	size_t fileNameLength;
-	while (fileBrowser.read(isDirectory, fileName, fileNameLength))
+	while (fileBrowser.read(isDirectory, fileName))
 	{
 		if (isDirectory)
 		{

@@ -94,7 +94,7 @@ char *Bas::SdFatFileBrowser::getCurrentPath()
 	return currentPath;
 }
 
-bool Bas::SdFatFileBrowser::read(bool &isDirectory, char *fileName, size_t &fileNameLength)
+bool Bas::SdFatFileBrowser::read(bool &isDirectory, char *fileName)
 {
 	FsFile file;
 
@@ -102,7 +102,7 @@ bool Bas::SdFatFileBrowser::read(bool &isDirectory, char *fileName, size_t &file
 	{
 		if (!file.isHidden())
 		{
-			fileNameLength = file.getName(fileName, maxFileNameLength);
+			file.getName(fileName, maxFileNameLength);
 			isDirectory = file.isDirectory();
 
 			return true;

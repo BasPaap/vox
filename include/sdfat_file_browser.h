@@ -22,7 +22,7 @@ namespace Bas
 		void goToParentDirectory() override;
 		bool getIsAtRoot() override;
 		char *getCurrentPath() override;
-		bool read(bool &isDirectory, char *fileName, size_t &fileNameLength) override;
+		bool read(bool &isDirectory, char *fileName) override;
 	};
 }
 

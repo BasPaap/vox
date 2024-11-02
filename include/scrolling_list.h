@@ -22,7 +22,7 @@ namespace Bas
 		int16_t currentListYPosition = 0;
 		size_t selectedItemIndex = 0;
 		static const int maxItems = 50;
-		static const int maxItemLength = 256;
+		static const int maxItemLength = 255 + 2 + 1; // max item length + 2 square brackets + 0 terminator
 		char items[maxItems][maxItemLength] = {{ '\0' }};
 		size_t numItems;
 		const int16_t maxYPosition = 0;
