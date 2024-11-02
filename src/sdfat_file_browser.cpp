@@ -98,14 +98,16 @@ bool Bas::SdFatFileBrowser::read(bool &isDirectory, char *fileName, size_t &file
 {
 	FsFile file;
 
-	if (file.openNext(&currentDirectory, O_RDONLY))
+	while (file.openNext(&currentDirectory, O_RDONLY))
 	{
-		fileNameLength = file.getName(fileName, maxFileNameLength);
-		isDirectory = file.isDirectory();
-		return true;
+		if (!file.isHidden())
+		{
+			fileNameLength = file.getName(fileName, maxFileNameLength);
+			isDirectory = file.isDirectory();
+
+			return true;
+		}
 	}
-	else
-	{
-		return false;
-	}
+
+	return false;
 }
