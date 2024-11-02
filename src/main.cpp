@@ -127,6 +127,23 @@ void setup()
 	showSplashScreen();
 }
 
+void surroundWithSquareBrackets(char* text)
+{
+	char oldChar = text[0];
+	text[0] = '[';
+
+	for (size_t i = 1; i < strlen(text) + 1; i++)
+	{
+		char nextChar = text[i];
+		text[i] = oldChar;
+		oldChar = nextChar;
+	}
+
+	size_t newLength = strlen(text);
+	text[newLength] = ']';
+	text[newLength + 1] = 0;
+}
+
 void populateScrollingList()
 {
 	scrollingList.clear();
@@ -137,10 +154,16 @@ void populateScrollingList()
 	}
 
 	bool isDirectory;
-	char fileName[256];
+	const int maxDirectoryTextLength = 255 + 2 + 1; // max directory name length + brackets + 0 terminator
+	char fileName[maxDirectoryTextLength];
 	size_t fileNameLength;
 	while (fileBrowser.read(isDirectory, fileName, fileNameLength))
 	{
+		if (isDirectory)
+		{
+			surroundWithSquareBrackets(fileName);
+		}
+
 		scrollingList.addItem(fileName);
 	}
 }
