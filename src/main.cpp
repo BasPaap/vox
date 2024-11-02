@@ -13,7 +13,6 @@
 #include "scrolling_list.h"
 #include "inactivity_timer.h"
 #include "sdfat_file_browser.h"
-#include "Common.h"
 
 // Declaration for an SSD1306 display connected to I2C (SDA, SCL pins)
 // The pins for I2C are defined by the Wire-library.

@@ -11,16 +11,6 @@ namespace Bas
 {
 	class FileBrowser
 	{
-	// protected:
-	// 	static const size_t maxFileNameLength = 20;
-
-	// public:
-	// 	struct FileSystemEntry
-	// 	{
-	// 		char name[maxFileNameLength];
-	// 		bool isDirectory;
-	// 	};
-
 	protected:
 		static const size_t maxPathLength = 257;
 		static const size_t maxFileNameLength = 256;
