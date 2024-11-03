@@ -67,29 +67,36 @@ void Bas::SdFatFileBrowser::begin()
 
 void Bas::SdFatFileBrowser::goToSubDirectory(size_t index)
 {
-	currentDirectory.open(index);
-	currentDirectoryDepth++;
-
-	// Add the current directory name to the current path
-	const size_t currentPathLength = strlen(currentPath);
-	char currentDirectoryName[maxFileNameLength];
-	currentDirectory.getName(currentDirectoryName, maxFileNameLength);
-	const size_t currentDirectoryNameLength = strlen(currentDirectoryName);
-	if ((currentPathLength + currentDirectoryNameLength + 2) <= maxPathLength) // the current path, plus the path of the sub folder, plus the trailing / and the zero terminator.
+	if (currentDirectoryDepth < maxDirectoryDepth)
 	{
-		strcpy(&currentPath[currentPathLength], currentDirectoryName);
-		currentPath[currentPathLength + currentDirectoryNameLength] = '/';
-		currentPath[currentPathLength + currentDirectoryNameLength + 1] = 0;
-	}
+		parentDirectoryIndexes[currentDirectoryDepth] = currentDirectory.dirIndex();
 
-	indexCurrentDirectory();
+		currentDirectory.open(index);
+		currentDirectoryDepth++;
+
+		// Add the current directory name to the current path
+		const size_t currentPathLength = strlen(currentPath);
+		char currentDirectoryName[maxFileNameLength];
+		currentDirectory.getName(currentDirectoryName, maxFileNameLength);
+		const size_t currentDirectoryNameLength = strlen(currentDirectoryName);
+		if ((currentPathLength + currentDirectoryNameLength + 2) <= maxPathLength) // the current path, plus the path of the sub folder, plus the trailing / and the zero terminator.
+		{
+			strcpy(&currentPath[currentPathLength], currentDirectoryName);
+			currentPath[currentPathLength + currentDirectoryNameLength] = '/';
+			currentPath[currentPathLength + currentDirectoryNameLength + 1] = 0;
+		}
+
+		indexCurrentDirectory();
+	}
 }
 
 void Bas::SdFatFileBrowser::goToParentDirectory()
 {
-	// Serial.println("To parent");
-	// currentDirectory.open("..");
-	currentDirectoryDepth--;
+	if (currentDirectoryDepth > 0)
+	{
+		currentDirectory.open(parentDirectoryIndexes[currentDirectoryDepth - 1]);
+		currentDirectoryDepth--;
+	}
 
 	indexCurrentDirectory();
 }
@@ -102,6 +109,18 @@ bool Bas::SdFatFileBrowser::getIsAtRoot()
 char *Bas::SdFatFileBrowser::getCurrentPath()
 {
 	return currentPath;
+}
+
+bool Bas::SdFatFileBrowser::isDirectory(size_t index)
+{
+    FsFile file;
+
+	if (file.open(index))
+	{
+		return file.isDirectory();
+	}
+
+	return false;
 }
 
 bool Bas::SdFatFileBrowser::read(bool &isDirectory, char *fileName)

@@ -40,6 +40,7 @@ namespace Bas
 		void nextItem();
 		void previousItem();
 		size_t getNumItems();
+		size_t getSelectedItemIndex();
 	};
 }
 

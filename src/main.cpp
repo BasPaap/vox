@@ -64,6 +64,25 @@ void onSelectButtonPressed()
 	if (inactivityTimer.getIsActive())
 	{
 		Serial.println("Select button pressed.");
+		size_t selectedItemIndex = scrollingList.getSelectedItemIndex();
+
+		if (selectedItemIndex == 0)
+		{
+			fileBrowser.goToParentDirectory();
+		}
+		else
+		{
+			size_t fileIndex = selectedItemIndex - 1;
+
+			if (fileBrowser.isDirectory(fileIndex))
+			{
+				fileBrowser.goToSubDirectory(fileIndex);
+			}
+			else
+			{
+				// Select file to play.
+			}
+		}
 	}
 
 	onActivity();

@@ -19,6 +19,8 @@ namespace Bas
 		uint32_t fileIndexes[maxFilesPerDirectory] = {0};
 		size_t numFilesInCurrentDirectory = 0;
 		size_t currentFileIndex = 0;
+		static const size_t maxDirectoryDepth = 64;
+		uint32_t parentDirectoryIndexes[maxDirectoryDepth] = {0};
 		static bool compareFileIndexes(uint32_t firstIndex, uint32_t secondIndex);
 		void indexCurrentDirectory();
 
@@ -28,6 +30,7 @@ namespace Bas
 		void goToParentDirectory() override;
 		bool getIsAtRoot() override;
 		char *getCurrentPath() override;
+		bool isDirectory(size_t index) override;
 		bool read(bool &isDirectory, char *fileName) override;
 	};
 }

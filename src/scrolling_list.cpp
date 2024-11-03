@@ -114,3 +114,8 @@ size_t Bas::ScrollingList::getNumItems()
 {
 	return numItems;
 }
+
+size_t Bas::ScrollingList::getSelectedItemIndex()
+{
+    return selectedItemIndex;
+}
