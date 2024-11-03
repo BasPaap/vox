@@ -16,8 +16,10 @@ namespace Bas
 		FsFile currentDirectory;
 		uint8_t currentDirectoryDepth;
 		static const size_t maxFilesPerDirectory = 255;
-		uint32_t fileIndex[maxFilesPerDirectory] = {0};
+		uint32_t fileIndexes[maxFilesPerDirectory] = {0};
 		size_t numFilesInCurrentDirectory = 0;
+		size_t currentFileIndex = 0;
+		static bool compareFileIndexes(uint32_t firstIndex, uint32_t secondIndex);
 		void indexCurrentDirectory();
 
 	public:

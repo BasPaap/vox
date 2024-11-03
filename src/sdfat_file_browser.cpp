@@ -1,26 +1,39 @@
 #include "sdfat_file_browser.h"
 #include <ArduinoSort.h>
 
-// bool Bas::SdFatFileBrowser::compareFileSystemEntries(FileSystemEntry first, FileSystemEntry second)
-// {
-// 	if (first.isDirectory && !second.isDirectory)
-// 	{
-// 		return false;
-// 	}
-// 	else if (!first.isDirectory && second.isDirectory)
-// 	{
-// 		return true;
-// 	}
-// 	else
-// 	{
-// 		int result = strcmp(first.name, second.name);
-// 		return result > 0; // Return true if second is higher than first, return false when vice versa or when they have the same name.
-// 	}
-// }
+bool Bas::SdFatFileBrowser::compareFileIndexes(uint32_t firstIndex, uint32_t secondIndex)
+{
+	FsFile firstFile;
+	firstFile.open(firstIndex, O_RDONLY);
+
+	FsFile secondFile;
+	secondFile.open(secondIndex, O_RDONLY);
+
+ 	if (firstFile.isDirectory() && !secondFile.isDirectory())
+	{
+		return false;
+	}
+	else if (!firstFile.isDirectory() && secondFile.isDirectory())
+	{
+		return true;
+	}
+	else
+	{
+		char firstFileName[maxFileNameLength];
+		firstFile.getName(firstFileName, maxFileNameLength);
+
+		char secondFileName[maxFileNameLength];
+		secondFile.getName(secondFileName, maxFileNameLength);
+
+		int result = strcmp(firstFileName, secondFileName);
+		return result > 0; // Return true if second is higher than first, return false when vice versa or when they have the same name.
+	}
+}
 
 void Bas::SdFatFileBrowser::indexCurrentDirectory()
 {
 	numFilesInCurrentDirectory = 0;
+	currentFileIndex = 0;
 
 	FsFile file;
 
@@ -28,12 +41,13 @@ void Bas::SdFatFileBrowser::indexCurrentDirectory()
 	{
 		if (!file.isHidden())
 		{
-			fileIndex[numFilesInCurrentDirectory] = file.dirIndex();
+			fileIndexes[numFilesInCurrentDirectory] = file.dirIndex();
 			numFilesInCurrentDirectory++;
 		}
 	}
 
 	// Sort file indexes by type (directory or file) then by name.
+	sortArray(fileIndexes, numFilesInCurrentDirectory, compareFileIndexes);
 }
 
 void Bas::SdFatFileBrowser::begin()
@@ -50,34 +64,6 @@ void Bas::SdFatFileBrowser::begin()
 
 	indexCurrentDirectory();
 }
-
-// void Bas::SdFatFileBrowser::readFileSystemEntries()
-// {
-// 	FsFile file;
-// 	numFileSystemEntries = 0;
-
-// 	while (file.openNext(&currentDirectory, O_RDONLY) && numFileSystemEntries < maxFileSystemEntries)
-// 	{
-// 		if (!file.isHidden())
-// 		{
-// 			file.getName(fileSystemEntries[numFileSystemEntries].name, maxFileNameLength);
-// 			fileSystemEntries[numFileSystemEntries].isDirectory = file.isDirectory();
-// 			numFileSystemEntries++;
-// 		}
-// 	}
-
-// 	sortArray(fileSystemEntries, numFileSystemEntries, &SdFatFileBrowser::compareFileSystemEntries); // Sort all entries by type (folder or file) and name.
-
-// 	Serial.print(numFileSystemEntries);
-// 	Serial.println(" file system entries in current folder.");
-
-// 	for (size_t i = 0; i < numFileSystemEntries; i++)
-// 	{
-// 		Serial.print(fileSystemEntries[i].name);
-// 		Serial.print("\t");
-// 		Serial.println(fileSystemEntries[i].isDirectory);
-// 	}
-// }
 
 void Bas::SdFatFileBrowser::goToSubDirectory(size_t index)
 {
@@ -120,17 +106,17 @@ char *Bas::SdFatFileBrowser::getCurrentPath()
 
 bool Bas::SdFatFileBrowser::read(bool &isDirectory, char *fileName)
 {
-	FsFile file;
-
-	while (file.openNext(&currentDirectory, O_RDONLY))
+	if (currentFileIndex < numFilesInCurrentDirectory)
 	{
-		if (!file.isHidden())
-		{
-			file.getName(fileName, maxFileNameLength);
-			isDirectory = file.isDirectory();
+		FsFile file;
+		file.open(fileIndexes[currentFileIndex], O_RDONLY);
 
-			return true;
-		}
+		file.getName(fileName, maxFileNameLength);
+		isDirectory = file.isDirectory();
+
+		currentFileIndex++;
+
+		return true;
 	}
 
 	return false;

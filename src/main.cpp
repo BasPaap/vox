@@ -100,33 +100,6 @@ void waitForSerial()
 	} // Wait until serial is available, or until the specified	time has elapsed
 }
 
-void setup()
-{
-	Serial.begin(9600);
-	waitForSerial();
-
-	Serial.print(F("Starting "));
-	Serial.println(versionText);
-
-	inactivityTimer.begin(10000, onInactivity);
-
-	upButton.begin(onUpButtonPressed);
-	downButton.begin(onDownButtonPressed);
-	selectButton.begin(onSelectButtonPressed);
-
-	scrollingList.begin();
-
-	textDisplay.begin();
-
-	fileBrowser.begin();
-
-	populateScrollingList();
-
-	//fileBrowser.goToSubDirectory(8);
-	//fileBrowser.goToParentDirectory();
-	showSplashScreen();
-}
-
 void surroundWithSquareBrackets(char* text)
 {
 	char oldChar = text[0];
@@ -165,6 +138,33 @@ void populateScrollingList()
 
 		scrollingList.addItem(fileName);
 	}
+}
+
+void setup()
+{
+	Serial.begin(9600);
+	waitForSerial();
+
+	Serial.print(F("Starting "));
+	Serial.println(versionText);
+
+	inactivityTimer.begin(10000, onInactivity);
+
+	upButton.begin(onUpButtonPressed);
+	downButton.begin(onDownButtonPressed);
+	selectButton.begin(onSelectButtonPressed);
+
+	scrollingList.begin();
+
+	textDisplay.begin();
+
+	fileBrowser.begin();
+
+	populateScrollingList();
+
+	//fileBrowser.goToSubDirectory(8);
+	//fileBrowser.goToParentDirectory();
+	showSplashScreen();
 }
 
 void loop()
