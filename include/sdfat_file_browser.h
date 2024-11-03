@@ -15,6 +15,10 @@ namespace Bas
 		SdFs sdCard;
 		FsFile currentDirectory;
 		uint8_t currentDirectoryDepth;
+		static const size_t maxFilesPerDirectory = 255;
+		uint32_t fileIndex[maxFilesPerDirectory] = {0};
+		size_t numFilesInCurrentDirectory = 0;
+		void indexCurrentDirectory();
 
 	public:
 		void begin();

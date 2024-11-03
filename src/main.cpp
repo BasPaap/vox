@@ -150,7 +150,7 @@ void populateScrollingList()
 
 	if (!fileBrowser.getIsAtRoot())
 	{
-		scrollingList.addItem("[..]");
+		scrollingList.addItem("←");
 	}
 
 	bool isDirectory;

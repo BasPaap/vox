@@ -18,6 +18,24 @@
 // 	}
 // }
 
+void Bas::SdFatFileBrowser::indexCurrentDirectory()
+{
+	numFilesInCurrentDirectory = 0;
+
+	FsFile file;
+
+	while (file.openNext(&currentDirectory, O_RDONLY))
+	{
+		if (!file.isHidden())
+		{
+			fileIndex[numFilesInCurrentDirectory] = file.dirIndex();
+			numFilesInCurrentDirectory++;
+		}
+	}
+
+	// Sort file indexes by type (directory or file) then by name.
+}
+
 void Bas::SdFatFileBrowser::begin()
 {
 	if (!sdCard.begin(SdSpiConfig(sdChipSelectPin, SHARED_SPI, SD_SCK_MHZ(50))))
@@ -29,6 +47,8 @@ void Bas::SdFatFileBrowser::begin()
 	currentPath[0] = '/';
 	currentPath[1] = 0;
 	currentDirectoryDepth = 0;
+
+	indexCurrentDirectory();
 }
 
 // void Bas::SdFatFileBrowser::readFileSystemEntries()
@@ -75,13 +95,17 @@ void Bas::SdFatFileBrowser::goToSubDirectory(size_t index)
 		currentPath[currentPathLength + currentDirectoryNameLength] = '/';
 		currentPath[currentPathLength + currentDirectoryNameLength + 1] = 0;
 	}
+
+	indexCurrentDirectory();
 }
 
 void Bas::SdFatFileBrowser::goToParentDirectory()
 {
 	// Serial.println("To parent");
 	// currentDirectory.open("..");
-	// currentDirectoryDepth--;
+	currentDirectoryDepth--;
+
+	indexCurrentDirectory();
 }
 
 bool Bas::SdFatFileBrowser::getIsAtRoot()
