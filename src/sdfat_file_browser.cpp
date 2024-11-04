@@ -32,11 +32,13 @@ bool Bas::SdFatFileBrowser::compareFileIndexes(uint32_t firstIndex, uint32_t sec
 
 void Bas::SdFatFileBrowser::indexCurrentDirectory()
 {
+	FsFile currentDirectory;
+	currentDirectory.open(currentPath);
+
 	numFilesInCurrentDirectory = 0;
 	currentFileIndex = 0;
 
 	FsFile file;
-
 	while (file.openNext(&currentDirectory, O_RDONLY))
 	{
 		if (!file.isHidden())
@@ -57,7 +59,6 @@ void Bas::SdFatFileBrowser::begin()
 		sdCard.initErrorHalt(&Serial);
 	}
 
-	currentDirectory.open("/"); // Open the root folder
 	currentPath[0] = '/';
 	currentPath[1] = 0;
 	currentDirectoryDepth = 0;
@@ -67,11 +68,15 @@ void Bas::SdFatFileBrowser::begin()
 
 void Bas::SdFatFileBrowser::goToSubDirectory(size_t index)
 {
+	FsFile currentDirectory;
+	currentDirectory.open(currentPath);
+
 	if (currentDirectoryDepth < maxDirectoryDepth)
 	{
 		parentDirectoryIndexes[currentDirectoryDepth] = currentDirectory.dirIndex();
 
-		currentDirectory.open(index);
+		currentDirectory.open(fileIndexes[index]);
+
 		currentDirectoryDepth++;
 
 		// Add the current directory name to the current path
@@ -86,6 +91,8 @@ void Bas::SdFatFileBrowser::goToSubDirectory(size_t index)
 			currentPath[currentPathLength + currentDirectoryNameLength + 1] = 0;
 		}
 
+		sdCard.chdir(currentPath);	// Change the actual working directory
+
 		indexCurrentDirectory();
 	}
 }
@@ -94,16 +101,26 @@ void Bas::SdFatFileBrowser::goToParentDirectory()
 {
 	if (currentDirectoryDepth > 0)
 	{
-		currentDirectory.open(parentDirectoryIndexes[currentDirectoryDepth - 1]);
-		currentDirectoryDepth--;
-	}
+		FsFile currentDirectory;
+		currentDirectory.open(currentPath);
 
-	indexCurrentDirectory();
+		// Cut the current directory name off the current path
+		char currentDirectoryName[maxFileNameLength];
+		currentDirectory.getName(currentDirectoryName, maxFileNameLength);
+		const size_t currentPathLength = strlen(currentPath);
+		currentPath[currentPathLength - (strlen(currentDirectoryName) + 1)] = '\0';	// Remove current directory name length plus trailing slash
+
+		currentDirectoryDepth--;
+
+		sdCard.chdir(currentPath); // Change the actual working directory
+
+		indexCurrentDirectory();
+	}
 }
 
 bool Bas::SdFatFileBrowser::getIsAtRoot()
 {
-	return (currentDirectory.isDirectory() && currentDirectoryDepth == 0);
+	return currentDirectoryDepth == 0;
 }
 
 char *Bas::SdFatFileBrowser::getCurrentPath()
@@ -111,11 +128,11 @@ char *Bas::SdFatFileBrowser::getCurrentPath()
 	return currentPath;
 }
 
-bool Bas::SdFatFileBrowser::isDirectory(size_t index)
+bool Bas::SdFatFileBrowser::getIsDirectory(size_t index)
 {
     FsFile file;
 
-	if (file.open(index))
+	if (file.open(fileIndexes[index]))
 	{
 		return file.isDirectory();
 	}
@@ -127,6 +144,9 @@ bool Bas::SdFatFileBrowser::read(bool &isDirectory, char *fileName)
 {
 	if (currentFileIndex < numFilesInCurrentDirectory)
 	{
+		FsFile currentDirectory;
+		currentDirectory.open(currentPath);
+
 		FsFile file;
 		file.open(fileIndexes[currentFileIndex], O_RDONLY);
 

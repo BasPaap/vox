@@ -63,23 +63,30 @@ void onSelectButtonPressed()
 {
 	if (inactivityTimer.getIsActive())
 	{
-		Serial.println("Select button pressed.");
 		size_t selectedItemIndex = scrollingList.getSelectedItemIndex();
 
-		if (selectedItemIndex == 0)
+		if (!fileBrowser.getIsAtRoot() && selectedItemIndex == 0)
 		{
+			Serial.println("Going to parent directory.");
 			fileBrowser.goToParentDirectory();
+			Serial.println("Populating scrolling list");
+			populateScrollingList();
 		}
 		else
 		{
-			size_t fileIndex = selectedItemIndex - 1;
+			size_t fileIndex = fileBrowser.getIsAtRoot() ? selectedItemIndex : selectedItemIndex - 1;
 
-			if (fileBrowser.isDirectory(fileIndex))
+			if (fileBrowser.getIsDirectory(fileIndex))
 			{
+				Serial.print(F("Going to sub directory "));
+				Serial.println(fileIndex);
 				fileBrowser.goToSubDirectory(fileIndex);
+				populateScrollingList();
 			}
 			else
 			{
+				Serial.print(F("Playing file "));
+				Serial.println(fileIndex);
 				// Select file to play.
 			}
 		}
@@ -142,12 +149,13 @@ void populateScrollingList()
 
 	if (!fileBrowser.getIsAtRoot())
 	{
-		scrollingList.addItem("←");
+		scrollingList.addItem("[..]");
 	}
 
 	bool isDirectory;
 	const int maxDirectoryTextLength = 255 + 2 + 1; // max directory name length + brackets + 0 terminator
 	char fileName[maxDirectoryTextLength];
+
 	while (fileBrowser.read(isDirectory, fileName))
 	{
 		if (isDirectory)
@@ -172,17 +180,12 @@ void setup()
 	upButton.begin(onUpButtonPressed);
 	downButton.begin(onDownButtonPressed);
 	selectButton.begin(onSelectButtonPressed);
-
 	scrollingList.begin();
-
 	textDisplay.begin();
-
 	fileBrowser.begin();
 
 	populateScrollingList();
 
-	//fileBrowser.goToSubDirectory(8);
-	//fileBrowser.goToParentDirectory();
 	showSplashScreen();
 }
 

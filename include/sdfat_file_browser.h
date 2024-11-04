@@ -13,7 +13,6 @@ namespace Bas
 		const uint8_t sdChipSelectPin = 9;
 
 		SdFs sdCard;
-		FsFile currentDirectory;
 		uint8_t currentDirectoryDepth;
 		static const size_t maxFilesPerDirectory = 255;
 		uint32_t fileIndexes[maxFilesPerDirectory] = {0};
@@ -30,7 +29,7 @@ namespace Bas
 		void goToParentDirectory() override;
 		bool getIsAtRoot() override;
 		char *getCurrentPath() override;
-		bool isDirectory(size_t index) override;
+		bool getIsDirectory(size_t index) override;
 		bool read(bool &isDirectory, char *fileName) override;
 	};
 }

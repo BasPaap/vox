@@ -77,6 +77,8 @@ void Bas::ScrollingList::update()
 
 void Bas::ScrollingList::clear()
 {
+	selectedItemIndex = 0;
+
 	for (size_t i = 0; i < numItems; i++)
 	{
 		items[i][0] = '\0';
