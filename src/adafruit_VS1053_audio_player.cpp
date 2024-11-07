@@ -8,17 +8,6 @@ void Bas::AdafruitVS1053AudioPlayer::begin()
 		while (1);
 	}
 
-	if (!SD.begin(SdSpiConfig(sdCardChipSelectPin, SHARED_SPI, SD_SCK_MHZ(50))))
-	{
-		SD.initErrorHalt(&Serial);
-	}
-
-	if (!SD.begin(sdCardChipSelectPin))
-	{
-    	Serial.println(F("SD failed, or not present"));
-    	while (1);
-	}
-
 	adafruitVs1053FilePlayer.useInterrupt(VS1053_FILEPLAYER_PIN_INT);  // DREQ int
 
 	setVolume(255, 255);

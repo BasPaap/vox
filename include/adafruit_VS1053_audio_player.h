@@ -6,8 +6,6 @@
 #include <SdFat.h>
 #include "Adafruit_VS1053.h"
 
-extern SdFat SD;
-
 namespace Bas
 {
 	class AdafruitVS1053AudioPlayer : public AudioPlayer

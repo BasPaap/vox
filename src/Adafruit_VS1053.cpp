@@ -100,7 +100,6 @@ Adafruit_VS1053_FilePlayer::Adafruit_VS1053_FilePlayer(int8_t rst, int8_t cs,
                                                        int8_t dcs, int8_t dreq,
                                                        int8_t cardcs)
     : Adafruit_VS1053(rst, cs, dcs, dreq) {
-
   playingMusic = false;
   _cardCS = cardcs;
   _loopPlayback = false;
@@ -137,6 +136,18 @@ boolean Adafruit_VS1053_FilePlayer::begin(void) {
 
   // dumpRegs();
   // Serial.print("Version = "); Serial.println(v);
+
+	if (!SD.begin(SdSpiConfig(_cardCS, SHARED_SPI, SD_SCK_MHZ(50))))
+	{
+		SD.initErrorHalt(&Serial);
+	}
+
+	if (!SD.begin(_cardCS))
+	{
+    	Serial.println(F("SD failed, or not present"));
+    	while (1);
+	}
+
   return (v == 4);
 }
 
@@ -301,6 +312,10 @@ void Adafruit_VS1053_FilePlayer::feedBuffer_noLock(void) {
     return; // paused or stopped
   }
 
+  const size_t maxFilenameLength = 256;
+  char fileName[maxFilenameLength];
+  currentTrack.getName(fileName, maxFilenameLength);
+
   // Feed the hungry buffer! :)
   while (readyForData()) {
     // Read some audio data from the SD card file
@@ -310,7 +325,7 @@ void Adafruit_VS1053_FilePlayer::feedBuffer_noLock(void) {
       // must be at the end of the file
       if (_loopPlayback) {
         // play in loop
-        if (true) {			// Don't check if it is an MP3 file. Assume it is. (isMP3File(currentTrack.name())) {
+        if (isMP3File(fileName)) {
           currentTrack.seek(mp3_ID3Jumper(currentTrack));
         } else {
           currentTrack.seek(0);
@@ -412,63 +427,63 @@ void Adafruit_VS1053::applyPatch(const uint16_t *patch, uint16_t patchsize) {
   }
 }
 
-uint16_t Adafruit_VS1053::loadPlugin(char *plugname) {
+// uint16_t Adafruit_VS1053::loadPlugin(char *plugname) {
 
-  File plugin = SD.open(plugname);
-  if (!plugin) {
-    Serial.println("Couldn't open the plugin file");
-    Serial.println(plugin);
-    return 0xFFFF;
-  }
+//   File plugin = SD.open(plugname);
+//   if (!plugin) {
+//     Serial.println("Couldn't open the plugin file");
+//     Serial.println(plugin);
+//     return 0xFFFF;
+//   }
 
-  if ((plugin.read() != 'P') || (plugin.read() != '&') ||
-      (plugin.read() != 'H'))
-    return 0xFFFF;
+//   if ((plugin.read() != 'P') || (plugin.read() != '&') ||
+//       (plugin.read() != 'H'))
+//     return 0xFFFF;
 
-  uint16_t type;
+//   uint16_t type;
 
-  // Serial.print("Patch size: "); Serial.println(patchsize);
-  while ((type = plugin.read()) >= 0) {
-    uint16_t offsets[] = {0x8000UL, 0x0, 0x4000UL};
-    uint16_t addr, len;
+//   // Serial.print("Patch size: "); Serial.println(patchsize);
+//   while ((type = plugin.read()) >= 0) {
+//     uint16_t offsets[] = {0x8000UL, 0x0, 0x4000UL};
+//     uint16_t addr, len;
 
-    // Serial.print("type: "); Serial.println(type, HEX);
+//     // Serial.print("type: "); Serial.println(type, HEX);
 
-    if (type >= 4) {
-      plugin.close();
-      return 0xFFFF;
-    }
+//     if (type >= 4) {
+//       plugin.close();
+//       return 0xFFFF;
+//     }
 
-    len = plugin.read();
-    len <<= 8;
-    len |= plugin.read() & ~1;
-    addr = plugin.read();
-    addr <<= 8;
-    addr |= plugin.read();
-    // Serial.print("len: "); Serial.print(len);
-    // Serial.print(" addr: $"); Serial.println(addr, HEX);
+//     len = plugin.read();
+//     len <<= 8;
+//     len |= plugin.read() & ~1;
+//     addr = plugin.read();
+//     addr <<= 8;
+//     addr |= plugin.read();
+//     // Serial.print("len: "); Serial.print(len);
+//     // Serial.print(" addr: $"); Serial.println(addr, HEX);
 
-    if (type == 3) {
-      // execute rec!
-      plugin.close();
-      return addr;
-    }
+//     if (type == 3) {
+//       // execute rec!
+//       plugin.close();
+//       return addr;
+//     }
 
-    // set address
-    sciWrite(VS1053_REG_WRAMADDR, addr + offsets[type]);
-    // write data
-    do {
-      uint16_t data;
-      data = plugin.read();
-      data <<= 8;
-      data |= plugin.read();
-      sciWrite(VS1053_REG_WRAM, data);
-    } while ((len -= 2));
-  }
+//     // set address
+//     sciWrite(VS1053_REG_WRAMADDR, addr + offsets[type]);
+//     // write data
+//     do {
+//       uint16_t data;
+//       data = plugin.read();
+//       data <<= 8;
+//       data |= plugin.read();
+//       sciWrite(VS1053_REG_WRAM, data);
+//     } while ((len -= 2));
+//   }
 
-  plugin.close();
-  return 0xFFFF;
-}
+//   plugin.close();
+//   return 0xFFFF;
+// }
 
 boolean Adafruit_VS1053::readyForData(void) { return digitalRead(_dreq); }
 
@@ -565,34 +580,34 @@ uint16_t Adafruit_VS1053::recordedReadWord(void) {
   return sciRead(VS1053_REG_HDAT0);
 }
 
-boolean Adafruit_VS1053::prepareRecordOgg(char *plugname) {
-  sciWrite(VS1053_REG_CLOCKF, 0xC000); // set max clock
-  delay(1);
-  while (!readyForData())
-    ;
+// boolean Adafruit_VS1053::prepareRecordOgg(char *plugname) {
+//   sciWrite(VS1053_REG_CLOCKF, 0xC000); // set max clock
+//   delay(1);
+//   while (!readyForData())
+//     ;
 
-  sciWrite(VS1053_REG_BASS, 0); // clear Bass
+//   sciWrite(VS1053_REG_BASS, 0); // clear Bass
 
-  softReset();
-  delay(1);
-  while (!readyForData())
-    ;
+//   softReset();
+//   delay(1);
+//   while (!readyForData())
+//     ;
 
-  sciWrite(VS1053_SCI_AIADDR, 0);
-  // disable all interrupts except SCI
-  sciWrite(VS1053_REG_WRAMADDR, VS1053_INT_ENABLE);
-  sciWrite(VS1053_REG_WRAM, 0x02);
+//   sciWrite(VS1053_SCI_AIADDR, 0);
+//   // disable all interrupts except SCI
+//   sciWrite(VS1053_REG_WRAMADDR, VS1053_INT_ENABLE);
+//   sciWrite(VS1053_REG_WRAM, 0x02);
 
-  int pluginStartAddr = loadPlugin(plugname);
-  if (pluginStartAddr == 0xFFFF)
-    return false;
-  Serial.print("Plugin at $");
-  Serial.println(pluginStartAddr, HEX);
-  if (pluginStartAddr != 0x34)
-    return false;
+//   int pluginStartAddr = loadPlugin(plugname);
+//   if (pluginStartAddr == 0xFFFF)
+//     return false;
+//   Serial.print("Plugin at $");
+//   Serial.println(pluginStartAddr, HEX);
+//   if (pluginStartAddr != 0x34)
+//     return false;
 
-  return true;
-}
+//   return true;
+// }
 
 void Adafruit_VS1053::stopRecordOgg(void) { sciWrite(VS1053_SCI_AICTRL3, 1); }
 

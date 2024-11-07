@@ -21,7 +21,6 @@
 
 // #if defined(PREFER_SDFAT_LIBRARY)
 #include <SdFat.h>
-extern SdFat SD;
 // #else
 // #include <SD.h>
 // #endif
@@ -209,7 +208,7 @@ public:
    * @return Either returns 0xFFFF if there is an error, or the address of the
    * plugin that was loaded
    */
-  uint16_t loadPlugin(char *fn);
+//   uint16_t loadPlugin(char *fn);
 
   /*!
    * @brief Write to a GPIO pin
@@ -245,7 +244,7 @@ public:
    * @param plugin Binary file of the plugin to use
    * @return Returns true if the device is ready to record
    */
-  boolean prepareRecordOgg(char *plugin);
+//   boolean prepareRecordOgg(char *plugin);
   /*!
    * @brief Start recording
    * @param mic mic=true for microphone input
@@ -416,8 +415,8 @@ public:
 
 private:
   void feedBuffer_noLock(void);
-
   uint8_t _cardCS;
+  SdFat SD;
 };
 
 #endif // ADAFRUIT_VS1053_H

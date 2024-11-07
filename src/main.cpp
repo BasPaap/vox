@@ -33,9 +33,6 @@ Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
 // Adafruit_VS1053_FilePlayer musicPlayer = Adafruit_VS1053_FilePlayer(PLAYER_RESET, PLAYER_CS, PLAYER_DCS, DREQ, CARD_CS);
 
 Bas::AdafruitVS1053AudioPlayer audioPlayer(PLAYER_RESET, PLAYER_CS, PLAYER_DCS, DREQ, CARD_CS);
-
-SdFs SD;
-
 Bas::AdafruitSSD1306TextDisplay textDisplay(SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_ADDRESS, display);
 Bas::ScrollingList scrollingList(textDisplay);
 Bas::Button upButton(A1, 20);
@@ -205,14 +202,10 @@ void setup()
 
 	showSplashScreen();
 }
+
 bool isDone = false;
 void loop()
 {
-// if (!isDone && musicPlayer.stopped()) {
-//     Serial.println("Done playing music");
-// 	isDone = true;
-//   }
-
 if (!isDone && !audioPlayer.getIsPlaying()) {
     Serial.println("Done playing music");
 	isDone = true;
