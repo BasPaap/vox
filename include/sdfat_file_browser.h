@@ -30,6 +30,7 @@ namespace Bas
 		bool getIsAtRoot() override;
 		char *getCurrentPath() override;
 		bool getIsDirectory(size_t index) override;
+		void getFilePath(size_t index, char *filePath, size_t filePathLength) override;
 		bool read(bool &isDirectory, char *fileName) override;
 	};
 }

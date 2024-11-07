@@ -99,7 +99,12 @@ void onSelectButtonPressed()
 			{
 				Serial.print(F("Playing file "));
 				Serial.println(fileIndex);
+
 				// Select file to play.
+				const size_t maxPathLength = 257;
+				char filePath[maxPathLength];
+				fileBrowser.getFilePath(fileIndex, filePath, maxPathLength);
+				audioPlayer.startPlayingFile(filePath);
 			}
 		}
 	}
@@ -195,8 +200,6 @@ void setup()
 	scrollingList.begin();
 	textDisplay.begin();
 	fileBrowser.begin();
-
-	audioPlayer.startPlayingFile("/tsardas.mp3");
 
 	populateScrollingList();
 

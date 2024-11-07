@@ -140,6 +140,25 @@ bool Bas::SdFatFileBrowser::getIsDirectory(size_t index)
 	return false;
 }
 
+void Bas::SdFatFileBrowser::getFilePath(size_t index, char *filePath, size_t filePathLength)
+{
+	FsFile file;
+
+	if (file.open(fileIndexes[index]))
+	{
+		char fileName[maxFileNameLength];
+		file.getName(fileName, maxFileNameLength);
+
+		size_t fullFilePathLength = strlen(currentPath) + strlen(fileName);
+		if (fullFilePathLength + 1 <= filePathLength)
+		{
+			strcpy(filePath, currentPath);
+			strcpy(filePath + strlen(currentPath), fileName);
+			filePath[fullFilePathLength] = '\0';
+		}
+	}
+}
+
 bool Bas::SdFatFileBrowser::read(bool &isDirectory, char *fileName)
 {
 	if (currentFileIndex < numFilesInCurrentDirectory)
