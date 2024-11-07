@@ -13,8 +13,7 @@
 #include "scrolling_list.h"
 #include "inactivity_timer.h"
 #include "sdfat_file_browser.h"
-#include "Adafruit_VS1053.h"
-
+#include "adafruit_VS1053_audio_player.h"
 
 // Pins used by the sparkfun VS1053 shield
 #define PLAYER_RESET 8
@@ -31,7 +30,10 @@
 #define OLED_RESET -1		// Reset pin # (or -1 if sharing Arduino reset pin)
 #define SCREEN_ADDRESS 0x3C ///< See datasheet for Address; 0x3D for 128x64, 0x3C for 128x32
 Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
-Adafruit_VS1053_FilePlayer musicPlayer = Adafruit_VS1053_FilePlayer(PLAYER_RESET, PLAYER_CS, PLAYER_DCS, DREQ, CARD_CS);
+// Adafruit_VS1053_FilePlayer musicPlayer = Adafruit_VS1053_FilePlayer(PLAYER_RESET, PLAYER_CS, PLAYER_DCS, DREQ, CARD_CS);
+
+Bas::AdafruitVS1053AudioPlayer audioPlayer(PLAYER_RESET, PLAYER_CS, PLAYER_DCS, DREQ, CARD_CS);
+
 SdFs SD;
 
 Bas::AdafruitSSD1306TextDisplay textDisplay(SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_ADDRESS, display);
@@ -188,28 +190,8 @@ void setup()
 	Serial.print(F("Starting "));
 	Serial.println(versionText);
 
- if (! musicPlayer.begin()) { // initialise the music player
-     Serial.println(F("Couldn't find VS1053, do you have the right pins defined?"));
-     while (1);
-  }
-
-  Serial.println(F("VS1053 found"));
-
-  if (!SD.begin(SdSpiConfig(CARD_CS, SHARED_SPI, SD_SCK_MHZ(50))))
-	{
-		SD.initErrorHalt(&Serial);
-	}
-
-
-   if (!SD.begin(CARD_CS)) {
-    Serial.println(F("SD failed, or not present"));
-    while (1);  // don't do anything more
-  }
-
-   musicPlayer.setVolume(20,20);
-
+	audioPlayer.begin();
 	inactivityTimer.begin(10000, onInactivity);
-
 	upButton.begin(onUpButtonPressed);
 	downButton.begin(onDownButtonPressed);
 	selectButton.begin(onSelectButtonPressed);
@@ -217,10 +199,7 @@ void setup()
 	textDisplay.begin();
 	fileBrowser.begin();
 
-
-  musicPlayer.useInterrupt(VS1053_FILEPLAYER_PIN_INT);  // DREQ int
-
-musicPlayer.startPlayingFile("/tsardas.mp3");
+	audioPlayer.startPlayingFile("/tsardas.mp3");
 
 	populateScrollingList();
 
@@ -229,7 +208,12 @@ musicPlayer.startPlayingFile("/tsardas.mp3");
 bool isDone = false;
 void loop()
 {
-if (!isDone && musicPlayer.stopped()) {
+// if (!isDone && musicPlayer.stopped()) {
+//     Serial.println("Done playing music");
+// 	isDone = true;
+//   }
+
+if (!isDone && !audioPlayer.getIsPlaying()) {
     Serial.println("Done playing music");
 	isDone = true;
   }

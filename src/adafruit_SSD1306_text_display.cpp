@@ -1,9 +1,5 @@
 #include "adafruit_SSD1306_text_display.h"
 
-void test()
-{
-
-}
 void Bas::AdafruitSSD1306TextDisplay::begin()
 {
 	// SSD1306_SWITCHCAPVCC = generate display voltage from 3.3V internally
