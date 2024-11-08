@@ -1,4 +1,4 @@
-#include "adafruit_VS1053_audio_player.h"
+#include "audio/adafruit_VS1053_audio_player.h"
 
 void Bas::AdafruitVS1053AudioPlayer::begin()
 {

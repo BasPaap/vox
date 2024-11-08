@@ -7,7 +7,7 @@
 #include "WProgram.h"
 #endif
 
-#include "text_display.h"
+#include "video/text_display.h"
 
 namespace Bas
 {

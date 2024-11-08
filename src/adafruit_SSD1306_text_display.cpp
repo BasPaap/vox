@@ -1,4 +1,4 @@
-#include "adafruit_SSD1306_text_display.h"
+#include "video/adafruit_SSD1306_text_display.h"
 
 void Bas::AdafruitSSD1306TextDisplay::begin()
 {

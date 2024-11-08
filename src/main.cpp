@@ -8,12 +8,12 @@
 #include <Bas.Button.h>
 
 #include "arcana_logo.h"
-#include "ssd1306_constants.h"
-#include "adafruit_SSD1306_text_display.h"
+#include "video/ssd1306_constants.h"
+#include "video/adafruit_SSD1306_text_display.h"
 #include "scrolling_list.h"
 #include "inactivity_timer.h"
-#include "sdfat_file_browser.h"
-#include "adafruit_VS1053_audio_player.h"
+#include "filebrowser/sdfat_file_browser.h"
+#include "audio/adafruit_VS1053_audio_player.h"
 
 // Pins used by the sparkfun VS1053 shield
 #define PLAYER_RESET 8

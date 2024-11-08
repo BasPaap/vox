@@ -23,7 +23,7 @@
  * BSD license, all text above must be included in any redistribution
  */
 
-#include "Adafruit_VS1053.h"
+#include "audio/Adafruit_VS1053.h"
 
 #if defined(ARDUINO_STM32_FEATHER)
 #define digitalPinToInterrupt(x) x
