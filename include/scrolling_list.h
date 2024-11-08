@@ -7,7 +7,7 @@
 #include "WProgram.h"
 #endif
 
-#include "video/text_display.h"
+#include "video/display.h"
 
 namespace Bas
 {
@@ -17,7 +17,7 @@ namespace Bas
 		enum class LogLevel { none = 0, normal };
 
 	private:
-		TextDisplay &display;
+		Display &display;
 		LogLevel logLevel;
 		int16_t currentListYPosition = 0;
 		size_t selectedItemIndex = 0;
@@ -32,7 +32,7 @@ namespace Bas
 		void updateSmoothListYPosition();
 
 	public:
-		ScrollingList(TextDisplay &display, LogLevel logLevel = LogLevel::none);
+		ScrollingList(Display &display, LogLevel logLevel = LogLevel::none);
 		void begin();
 		void update();
 		void clear();

@@ -2,7 +2,7 @@
 #include <Bas.Button.h>
 #include "arcana_logo.h"
 #include "video/ssd1306_constants.h"
-#include "video/adafruit_SSD1306_text_display.h"
+#include "video/adafruit_SSD1306_display.h"
 #include "scrolling_list.h"
 #include "inactivity_timer.h"
 #include "filebrowser/sdfat_file_browser.h"
@@ -28,9 +28,9 @@ const int selectButtonPin = A2;
 const int playButtonPin = A3;
 
 SdFs sdCard;
-Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, oledResetPin);
-Bas::AdafruitSSD1306TextDisplay textDisplay(SCREEN_WIDTH, SCREEN_HEIGHT, screenAddress, display);
-Bas::ScrollingList scrollingList(textDisplay);
+Adafruit_SSD1306 adafruitSsd1306Display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, oledResetPin);
+Bas::AdafruitSSD1306Display display(SCREEN_WIDTH, SCREEN_HEIGHT, screenAddress, adafruitSsd1306Display);
+Bas::ScrollingList scrollingList(display);
 Bas::Button upButton(upButtonPin, 20);
 Bas::Button downButton(downButtonPin, 20);
 Bas::Button selectButton(selectButtonPin, 20);
@@ -47,7 +47,48 @@ const char *versionText = "Vox v1.0.0";
 void onActivity()
 {
 	inactivityTimer.reset();
-	textDisplay.sleep(false);
+	display.sleep(false);
+}
+
+void surroundWithSquareBrackets(char* text)
+{
+	char oldChar = text[0];
+	text[0] = '[';
+
+	for (size_t i = 1; i < strlen(text) + 1; i++)
+	{
+		char nextChar = text[i];
+		text[i] = oldChar;
+		oldChar = nextChar;
+	}
+
+	size_t newLength = strlen(text);
+	text[newLength] = ']';
+	text[newLength + 1] = 0;
+}
+
+void populateScrollingList()
+{
+	scrollingList.clear();
+
+	if (!fileBrowser.getIsAtRoot())
+	{
+		scrollingList.addItem("[..]");
+	}
+
+	bool isDirectory;
+	const int maxDirectoryTextLength = 255 + 2 + 1; // max directory name length + brackets + 0 terminator
+	char fileName[maxDirectoryTextLength];
+
+	while (fileBrowser.read(isDirectory, fileName))
+	{
+		if (isDirectory)
+		{
+			surroundWithSquareBrackets(fileName);
+		}
+
+		scrollingList.addItem(fileName);
+	}
 }
 
 void onUpButtonPressed()
@@ -122,22 +163,22 @@ void onPlayButtonToggled()
 
 void showSplashScreen()
 {
-	display.clearDisplay();
-	display.drawBitmap(0, 0, arcanaLogo, ARCANA_LOGO_WIDTH, ARCANA_LOGO_HEIGHT, 1);
-	display.setTextSize(1);
+	adafruitSsd1306Display.clearDisplay();
+	adafruitSsd1306Display.drawBitmap(0, 0, arcanaLogo, ARCANA_LOGO_WIDTH, ARCANA_LOGO_HEIGHT, 1);
+	adafruitSsd1306Display.setTextSize(1);
 
-	display.setCursor(SCREEN_WIDTH - strlen(versionText) * CHARACTER_WIDTH, SCREEN_HEIGHT - CHARACTER_HEIGHT);
-	display.cp437(true);
-	display.setTextColor(SSD1306_WHITE);
-	display.write(versionText);
+	adafruitSsd1306Display.setCursor(SCREEN_WIDTH - strlen(versionText) * CHARACTER_WIDTH, SCREEN_HEIGHT - CHARACTER_HEIGHT);
+	adafruitSsd1306Display.cp437(true);
+	adafruitSsd1306Display.setTextColor(SSD1306_WHITE);
+	adafruitSsd1306Display.write(versionText);
 
-	display.display();
+	adafruitSsd1306Display.display();
 	delay(1000);
 }
 
 void onInactivity()
 {
-	textDisplay.sleep(true);
+	display.sleep(true);
 }
 
 void waitForSerial()
@@ -149,47 +190,6 @@ void waitForSerial()
 	{
 		yield();
 	} // Wait until serial is available, or until the specified	time has elapsed
-}
-
-void surroundWithSquareBrackets(char* text)
-{
-	char oldChar = text[0];
-	text[0] = '[';
-
-	for (size_t i = 1; i < strlen(text) + 1; i++)
-	{
-		char nextChar = text[i];
-		text[i] = oldChar;
-		oldChar = nextChar;
-	}
-
-	size_t newLength = strlen(text);
-	text[newLength] = ']';
-	text[newLength + 1] = 0;
-}
-
-void populateScrollingList()
-{
-	scrollingList.clear();
-
-	if (!fileBrowser.getIsAtRoot())
-	{
-		scrollingList.addItem("[..]");
-	}
-
-	bool isDirectory;
-	const int maxDirectoryTextLength = 255 + 2 + 1; // max directory name length + brackets + 0 terminator
-	char fileName[maxDirectoryTextLength];
-
-	while (fileBrowser.read(isDirectory, fileName))
-	{
-		if (isDirectory)
-		{
-			surroundWithSquareBrackets(fileName);
-		}
-
-		scrollingList.addItem(fileName);
-	}
 }
 
 void setup()
@@ -211,7 +211,7 @@ void setup()
 	selectButton.begin(onSelectButtonPressed);
 	playButton.begin(onPlayButtonToggled, onPlayButtonToggled);
 	scrollingList.begin();
-	textDisplay.begin();
+	display.begin();
 	fileBrowser.begin();
 	audioPlayer.begin();
 

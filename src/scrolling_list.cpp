@@ -37,7 +37,7 @@ void Bas::ScrollingList::updateSmoothListYPosition()
 	}
 }
 
-Bas::ScrollingList::ScrollingList(TextDisplay &display, LogLevel logLevel) : display{ display }, logLevel{ logLevel }
+Bas::ScrollingList::ScrollingList(Display &display, LogLevel logLevel) : display{ display }, logLevel{ logLevel }
 {
 }
 

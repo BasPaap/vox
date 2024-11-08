@@ -1,5 +1,5 @@
-#ifndef _TEXT_DISPLAY_H
-#define _TEXT_DISPLAY_H
+#ifndef _DISPLAY_H
+#define _DISPLAY_H
 
 #if defined(ARDUINO) && ARDUINO >= 100
 #include "arduino.h"
@@ -9,7 +9,7 @@
 
 namespace Bas
 {
-    class TextDisplay
+    class Display
     {
         public:
             virtual int8_t getWidth() = 0;

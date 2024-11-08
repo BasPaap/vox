@@ -1,20 +1,20 @@
-#ifndef _ADAFRUIT_SSD1306_TEXT_DISPLAY
-#define _ADAFRUIT_SSD1306_TEXT_DISPLAY
+#ifndef _ADAFRUIT_SSD1306_DISPLAY
+#define _ADAFRUIT_SSD1306_DISPLAY
 
 #include <Adafruit_SSD1306.h>
 #include "ssd1306_constants.h"
-#include "text_display.h"
+#include "display.h"
 
 namespace Bas
 {
-    class AdafruitSSD1306TextDisplay : public TextDisplay
+    class AdafruitSSD1306Display : public Display
     {
         private:
             int8_t width;
             int8_t height;
 			uint8_t screenAddress;
             int8_t textSize = 1;
-			Adafruit_SSD1306 &display;
+			Adafruit_SSD1306 &ssd1306Display;
             const int8_t fullScaleCharacterWidth = CHARACTER_WIDTH;
             const int8_t fullScaleCharacterHeight = CHARACTER_HEIGHT;
 			unsigned long dimStartTime;
@@ -22,7 +22,7 @@ namespace Bas
 			bool isDimmed;
 
         public:
-            AdafruitSSD1306TextDisplay(uint8_t width, uint8_t height, uint8_t screenAddress, Adafruit_SSD1306 &adafruitSsd1306Display) : width(width), height(height), screenAddress(screenAddress), display(adafruitSsd1306Display) {}
+            AdafruitSSD1306Display(uint8_t width, uint8_t height, uint8_t screenAddress, Adafruit_SSD1306 &adafruitSsd1306Display) : width(width), height(height), screenAddress(screenAddress), ssd1306Display(adafruitSsd1306Display) {}
 			void begin();
 			int8_t getWidth() override;
             int8_t getHeight() override;
