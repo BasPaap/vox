@@ -25,6 +25,7 @@ const pin_size_t sdCardChipSelectPin = 9;
 const int upButtonPin = A1;
 const int downButtonPin = A0;
 const int selectButtonPin = A2;
+const int playButtonPin = A3;
 
 SdFs sdCard;
 Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, oledResetPin);
@@ -33,9 +34,13 @@ Bas::ScrollingList scrollingList(textDisplay);
 Bas::Button upButton(upButtonPin, 20);
 Bas::Button downButton(downButtonPin, 20);
 Bas::Button selectButton(selectButtonPin, 20);
+Bas::Button playButton(playButtonPin, 20);
 Bas::InactivityTimer inactivityTimer;
 Bas::SdFatFileBrowser fileBrowser(&sdCard);
 Bas::AdafruitVS1053AudioPlayer audioPlayer(playerResetPin, playerChipSelectPin, playerDataChipSelectPin, playerDataRequestPin, &sdCard);
+
+const size_t maxFilePathLength = 257; // 256 characters + zero terminator
+char selectedFilePath[maxFilePathLength] = { 0 };
 
 const char *versionText = "Vox v1.0.0";
 
@@ -69,6 +74,7 @@ void onSelectButtonPressed()
 {
 	if (inactivityTimer.getIsActive())
 	{
+		selectedFilePath[0] = '\0';
 		size_t selectedItemIndex = scrollingList.getSelectedItemIndex();
 
 		if (!fileBrowser.getIsAtRoot() && selectedItemIndex == 0)
@@ -91,19 +97,27 @@ void onSelectButtonPressed()
 			}
 			else
 			{
-				// Serial.print(F("Playing file "));
-				// Serial.println(fileIndex);
-
-				// Select file to play.
-				const size_t maxPathLength = 257;
-				char filePath[maxPathLength];
-				fileBrowser.getFilePath(fileIndex, filePath, maxPathLength);
-				audioPlayer.startPlayingFile(filePath);
+				fileBrowser.getFilePath(fileIndex, selectedFilePath, maxFilePathLength);
 			}
 		}
 	}
 
 	onActivity();
+}
+
+void onPlayButtonToggled()
+{
+	if (audioPlayer.getIsPlaying())
+	{
+		audioPlayer.stopPlaying();
+	}
+	else
+	{
+		if (strlen(selectedFilePath) > 0)
+		{
+			audioPlayer.startPlayingFile(selectedFilePath);
+		}
+	}
 }
 
 void showSplashScreen()
@@ -195,6 +209,7 @@ void setup()
 	upButton.begin(onUpButtonPressed);
 	downButton.begin(onDownButtonPressed);
 	selectButton.begin(onSelectButtonPressed);
+	playButton.begin(onPlayButtonToggled, onPlayButtonToggled);
 	scrollingList.begin();
 	textDisplay.begin();
 	fileBrowser.begin();
@@ -205,17 +220,12 @@ void setup()
 	showSplashScreen();
 }
 
-bool isDone = false;
 void loop()
 {
-if (!isDone && !audioPlayer.getIsPlaying()) {
-    Serial.println("Done playing music");
-	isDone = true;
-  }
-
 	inactivityTimer.update();
 	upButton.update();
 	downButton.update();
 	selectButton.update();
+	playButton.update();
 	scrollingList.update();
 }
