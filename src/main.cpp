@@ -4,6 +4,7 @@
 #include "video/ssd1306_constants.h"
 #include "video/adafruit_SSD1306_display.h"
 #include "scrolling_list.h"
+#include "selected_track_dialog.h"
 #include "inactivity_timer.h"
 #include "filebrowser/sdfat_file_browser.h"
 #include "audio/adafruit_VS1053_audio_player.h"
@@ -31,6 +32,7 @@ SdFs sdCard;
 Adafruit_SSD1306 adafruitSsd1306Display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, oledResetPin);
 Bas::AdafruitSSD1306Display display(SCREEN_WIDTH, SCREEN_HEIGHT, screenAddress, adafruitSsd1306Display);
 Bas::ScrollingList scrollingList(display);
+Bas::SelectedTrackDialog selectedTrackDialog(display);
 Bas::Button upButton(upButtonPin, 20);
 Bas::Button downButton(downButtonPin, 20);
 Bas::Button selectButton(selectButtonPin, 20);
@@ -211,6 +213,7 @@ void setup()
 	selectButton.begin(onSelectButtonPressed);
 	playButton.begin(onPlayButtonToggled, onPlayButtonToggled);
 	scrollingList.begin();
+	selectedTrackDialog.begin();
 	display.begin();
 	fileBrowser.begin();
 	audioPlayer.begin();
@@ -230,5 +233,6 @@ void loop()
 
 	display.clear();
 	scrollingList.update();
+	selectedTrackDialog.update();
 	display.update();
 }
