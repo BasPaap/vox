@@ -227,5 +227,8 @@ void loop()
 	downButton.update();
 	selectButton.update();
 	playButton.update();
+
+	display.clear();
 	scrollingList.update();
+	display.update();
 }

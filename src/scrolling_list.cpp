@@ -51,7 +51,6 @@ void Bas::ScrollingList::begin()
 
 void Bas::ScrollingList::update()
 {
-	display.clear();
 	display.enableWrapping(false);
 	display.setTextSize(1);
 	updateSmoothListYPosition(); // Smoothly scroll the list to keep the selected item in view.
@@ -71,8 +70,6 @@ void Bas::ScrollingList::update()
 		display.write(items[i]);
 		display.write('\n');
 	}
-
-	display.update();
 }
 
 void Bas::ScrollingList::clear()
