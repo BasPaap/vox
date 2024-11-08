@@ -11,8 +11,7 @@ namespace Bas
 	{
 	private:
 		const uint8_t sdChipSelectPin = 9;
-
-		SdFs sdCard;
+		SdFs *sdCard;
 		uint8_t currentDirectoryDepth;
 		static const size_t maxFilesPerDirectory = 255;
 		uint32_t fileIndexes[maxFilesPerDirectory] = {0};
@@ -24,6 +23,7 @@ namespace Bas
 		void indexCurrentDirectory();
 
 	public:
+		SdFatFileBrowser(SdFs *sdCard) : sdCard(sdCard) {}
 		void begin();
 		void goToSubDirectory(size_t index) override;
 		void goToParentDirectory() override;

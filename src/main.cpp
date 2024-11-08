@@ -29,17 +29,17 @@
 // On an arduino LEONARDO:   2(SDA),  3(SCL), ...
 #define OLED_RESET -1		// Reset pin # (or -1 if sharing Arduino reset pin)
 #define SCREEN_ADDRESS 0x3C ///< See datasheet for Address; 0x3D for 128x64, 0x3C for 128x32
-Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
-// Adafruit_VS1053_FilePlayer musicPlayer = Adafruit_VS1053_FilePlayer(PLAYER_RESET, PLAYER_CS, PLAYER_DCS, DREQ, CARD_CS);
 
-Bas::AdafruitVS1053AudioPlayer audioPlayer(PLAYER_RESET, PLAYER_CS, PLAYER_DCS, DREQ, CARD_CS);
+SdFs sdCard;
+Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
 Bas::AdafruitSSD1306TextDisplay textDisplay(SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_ADDRESS, display);
 Bas::ScrollingList scrollingList(textDisplay);
 Bas::Button upButton(A1, 20);
 Bas::Button downButton(A0, 20);
 Bas::Button selectButton(A2, 20);
 Bas::InactivityTimer inactivityTimer;
-Bas::SdFatFileBrowser fileBrowser;
+Bas::SdFatFileBrowser fileBrowser(&sdCard);
+Bas::AdafruitVS1053AudioPlayer audioPlayer(PLAYER_RESET, PLAYER_CS, PLAYER_DCS, DREQ, &sdCard);
 
 const char *versionText = "Vox v1.0.0";
 
@@ -61,8 +61,6 @@ void onUpButtonPressed()
 
 void onDownButtonPressed()
 {
-	Serial.println(F("Down"));
-
 	if (inactivityTimer.getIsActive())
 	{
 		scrollingList.nextItem();
@@ -79,9 +77,9 @@ void onSelectButtonPressed()
 
 		if (!fileBrowser.getIsAtRoot() && selectedItemIndex == 0)
 		{
-			Serial.println("Going to parent directory.");
+			// Serial.println("Going to parent directory.");
 			fileBrowser.goToParentDirectory();
-			Serial.println("Populating scrolling list");
+			// Serial.println("Populating scrolling list");
 			populateScrollingList();
 		}
 		else
@@ -90,15 +88,15 @@ void onSelectButtonPressed()
 
 			if (fileBrowser.getIsDirectory(fileIndex))
 			{
-				Serial.print(F("Going to sub directory "));
-				Serial.println(fileIndex);
+				// Serial.print(F("Going to sub directory "));
+				// Serial.println(fileIndex);
 				fileBrowser.goToSubDirectory(fileIndex);
 				populateScrollingList();
 			}
 			else
 			{
-				Serial.print(F("Playing file "));
-				Serial.println(fileIndex);
+				// Serial.print(F("Playing file "));
+				// Serial.println(fileIndex);
 
 				// Select file to play.
 				const size_t maxPathLength = 257;
@@ -192,7 +190,11 @@ void setup()
 	Serial.print(F("Starting "));
 	Serial.println(versionText);
 
-	audioPlayer.begin();
+	if (!sdCard.begin(SdSpiConfig(CARD_CS, SHARED_SPI, SD_SCK_MHZ(50))))
+	{
+		sdCard.initErrorHalt(&Serial);
+	}
+
 	inactivityTimer.begin(10000, onInactivity);
 	upButton.begin(onUpButtonPressed);
 	downButton.begin(onDownButtonPressed);
@@ -200,6 +202,7 @@ void setup()
 	scrollingList.begin();
 	textDisplay.begin();
 	fileBrowser.begin();
+	audioPlayer.begin();
 
 	populateScrollingList();
 

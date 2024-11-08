@@ -97,57 +97,35 @@ boolean Adafruit_VS1053_FilePlayer::useInterrupt(uint8_t type) {
 }
 
 Adafruit_VS1053_FilePlayer::Adafruit_VS1053_FilePlayer(int8_t rst, int8_t cs,
-                                                       int8_t dcs, int8_t dreq,
-                                                       int8_t cardcs)
+                                                       int8_t dcs, int8_t dreq, SdFs *sdCard)
     : Adafruit_VS1053(rst, cs, dcs, dreq) {
   playingMusic = false;
-  _cardCS = cardcs;
   _loopPlayback = false;
+  this->sdCard = sdCard;
 }
 
 Adafruit_VS1053_FilePlayer::Adafruit_VS1053_FilePlayer(int8_t cs, int8_t dcs,
-                                                       int8_t dreq,
-                                                       int8_t cardcs)
+                                                       int8_t dreq, SdFs *sdCard)
     : Adafruit_VS1053(-1, cs, dcs, dreq) {
 
   playingMusic = false;
-  _cardCS = cardcs;
   _loopPlayback = false;
+  this->sdCard = sdCard;
 }
 
 Adafruit_VS1053_FilePlayer::Adafruit_VS1053_FilePlayer(int8_t mosi, int8_t miso,
                                                        int8_t clk, int8_t rst,
                                                        int8_t cs, int8_t dcs,
-                                                       int8_t dreq,
-                                                       int8_t cardcs)
+                                                       int8_t dreq, SdFs *sdCard)
     : Adafruit_VS1053(mosi, miso, clk, rst, cs, dcs, dreq) {
 
   playingMusic = false;
-  _cardCS = cardcs;
   _loopPlayback = false;
+  this->sdCard = sdCard;
 }
 
 boolean Adafruit_VS1053_FilePlayer::begin(void) {
-  // Set the card to be disabled while we get the VS1053 up
-  pinMode(_cardCS, OUTPUT);
-  digitalWrite(_cardCS, HIGH);
-
   uint8_t v = Adafruit_VS1053::begin();
-
-  // dumpRegs();
-  // Serial.print("Version = "); Serial.println(v);
-
-	if (!SD.begin(SdSpiConfig(_cardCS, SHARED_SPI, SD_SCK_MHZ(50))))
-	{
-		SD.initErrorHalt(&Serial);
-	}
-
-	if (!SD.begin(_cardCS))
-	{
-    	Serial.println(F("SD failed, or not present"));
-    	while (1);
-	}
-
   return (v == 4);
 }
 
@@ -248,7 +226,7 @@ boolean Adafruit_VS1053_FilePlayer::startPlayingFile(const char *trackname) {
   sciWrite(VS1053_REG_WRAMADDR, 0x1e29);
   sciWrite(VS1053_REG_WRAM, 0);
 
-  currentTrack = SD.open(trackname);
+  currentTrack = sdCard->open(trackname);
   if (!currentTrack) {
     return false;
   }

@@ -54,10 +54,10 @@ void Bas::SdFatFileBrowser::indexCurrentDirectory()
 
 void Bas::SdFatFileBrowser::begin()
 {
-	if (!sdCard.begin(SdSpiConfig(sdChipSelectPin, SHARED_SPI, SD_SCK_MHZ(50))))
-	{
-		sdCard.initErrorHalt(&Serial);
-	}
+	// if (!sdCard.begin(SdSpiConfig(sdChipSelectPin, SHARED_SPI, SD_SCK_MHZ(50))))
+	// {
+	// 	sdCard.initErrorHalt(&Serial);
+	// }
 
 	currentPath[0] = '/';
 	currentPath[1] = 0;
@@ -91,7 +91,7 @@ void Bas::SdFatFileBrowser::goToSubDirectory(size_t index)
 			currentPath[currentPathLength + currentDirectoryNameLength + 1] = 0;
 		}
 
-		sdCard.chdir(currentPath);	// Change the actual working directory
+		sdCard->chdir(currentPath);	// Change the actual working directory
 
 		indexCurrentDirectory();
 	}
@@ -112,7 +112,7 @@ void Bas::SdFatFileBrowser::goToParentDirectory()
 
 		currentDirectoryDepth--;
 
-		sdCard.chdir(currentPath); // Change the actual working directory
+		sdCard->chdir(currentPath); // Change the actual working directory
 
 		indexCurrentDirectory();
 	}

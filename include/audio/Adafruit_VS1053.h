@@ -306,7 +306,7 @@ public:
    * @param cardCS CS pin for the SD card on the SPI bus
    */
   Adafruit_VS1053_FilePlayer(int8_t mosi, int8_t miso, int8_t clk, int8_t rst,
-                             int8_t cs, int8_t dcs, int8_t dreq, int8_t cardCS);
+                             int8_t cs, int8_t dcs, int8_t dreq, SdFs *sdCard);
   /*!
    * @brief Hardware SPI constructor. Uses Hardware SPI and assumes the default
    * SPI pins
@@ -316,8 +316,7 @@ public:
    * @param dreq Data Request pin
    * @param cardCS CS pin for the SD card on the SPI bus
    */
-  Adafruit_VS1053_FilePlayer(int8_t rst, int8_t cs, int8_t dcs, int8_t dreq,
-                             int8_t cardCS);
+  Adafruit_VS1053_FilePlayer(int8_t rst, int8_t cs, int8_t dcs, int8_t dreq, SdFs *sdCard);
 
   /*!
    * @brief Hardware SPI constructor. Uses Hardware SPI and assumes the default
@@ -327,7 +326,7 @@ public:
    * @param dreq Data Request pin
    * @param cardCS CS pin for the SD card on the SPI bus
    */
-  Adafruit_VS1053_FilePlayer(int8_t cs, int8_t dcs, int8_t dreq, int8_t cardCS);
+  Adafruit_VS1053_FilePlayer(int8_t cs, int8_t dcs, int8_t dreq, SdFs *sdCard);
 
   /*!
    * @brief Initialize communication and reset the chip.
@@ -415,8 +414,7 @@ public:
 
 private:
   void feedBuffer_noLock(void);
-  uint8_t _cardCS;
-  SdFat SD;
+  SdFs *sdCard;
 };
 
 #endif // ADAFRUIT_VS1053_H
