@@ -1,12 +1,5 @@
 #include <Arduino.h>
-// #include <SPI.h>
-// #include <Wire.h>
-// #include <Adafruit_GFX.h>
-// #include <Adafruit_SSD1306.h>
-// #include <SdFat.h>
-//#include <vs1053_SdFat.h>
 #include <Bas.Button.h>
-
 #include "arcana_logo.h"
 #include "video/ssd1306_constants.h"
 #include "video/adafruit_SSD1306_text_display.h"
@@ -16,30 +9,33 @@
 #include "audio/adafruit_VS1053_audio_player.h"
 
 // Pins used by the sparkfun VS1053 shield
-#define PLAYER_RESET 8
-#define PLAYER_CS 6
-#define PLAYER_DCS 7
-#define DREQ 2
-#define CARD_CS 9
+const pin_size_t playerResetPin = 8;
+const pin_size_t playerChipSelectPin = 6;
+const pin_size_t playerDataChipSelectPin = 7;
+const pin_size_t playerDataRequestPin = 2;
 
-// Declaration for an SSD1306 display connected to I2C (SDA, SCL pins)
-// The pins for I2C are defined by the Wire-library.
-// On an arduino UNO:       A4(SDA), A5(SCL)
-// On an arduino MEGA 2560: 20(SDA), 21(SCL)
-// On an arduino LEONARDO:   2(SDA),  3(SCL), ...
-#define OLED_RESET -1		// Reset pin # (or -1 if sharing Arduino reset pin)
-#define SCREEN_ADDRESS 0x3C ///< See datasheet for Address; 0x3D for 128x64, 0x3C for 128x32
+// Const for an SSD1306 display
+const int8_t oledResetPin = -1; // Reset pin # (or -1 if sharing Arduino reset pin)
+const uint8_t screenAddress = 0x3C; ///< See datasheet for Address; 0x3D for 128x64, 0x3C for 128x32
+
+// Const for SD card
+const pin_size_t sdCardChipSelectPin = 9;
+
+// Button pins
+const int upButtonPin = A1;
+const int downButtonPin = A0;
+const int selectButtonPin = A2;
 
 SdFs sdCard;
-Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
-Bas::AdafruitSSD1306TextDisplay textDisplay(SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_ADDRESS, display);
+Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, oledResetPin);
+Bas::AdafruitSSD1306TextDisplay textDisplay(SCREEN_WIDTH, SCREEN_HEIGHT, screenAddress, display);
 Bas::ScrollingList scrollingList(textDisplay);
-Bas::Button upButton(A1, 20);
-Bas::Button downButton(A0, 20);
-Bas::Button selectButton(A2, 20);
+Bas::Button upButton(upButtonPin, 20);
+Bas::Button downButton(downButtonPin, 20);
+Bas::Button selectButton(selectButtonPin, 20);
 Bas::InactivityTimer inactivityTimer;
 Bas::SdFatFileBrowser fileBrowser(&sdCard);
-Bas::AdafruitVS1053AudioPlayer audioPlayer(PLAYER_RESET, PLAYER_CS, PLAYER_DCS, DREQ, &sdCard);
+Bas::AdafruitVS1053AudioPlayer audioPlayer(playerResetPin, playerChipSelectPin, playerDataChipSelectPin, playerDataRequestPin, &sdCard);
 
 const char *versionText = "Vox v1.0.0";
 
@@ -190,7 +186,7 @@ void setup()
 	Serial.print(F("Starting "));
 	Serial.println(versionText);
 
-	if (!sdCard.begin(SdSpiConfig(CARD_CS, SHARED_SPI, SD_SCK_MHZ(50))))
+	if (!sdCard.begin(SdSpiConfig(sdCardChipSelectPin, SHARED_SPI, SD_SCK_MHZ(50))))
 	{
 		sdCard.initErrorHalt(&Serial);
 	}
