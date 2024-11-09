@@ -16,16 +16,19 @@ namespace Bas
 	{
 	private:
 		Display &display;
-		bool isOpen;
+		bool isOpen = false;
+		enum class Mode { selected, playing };
+		Mode currentMode;
+		const char *currentFileName;
 
 	public:
 		SelectedTrackDialog(Display &display);
-		void begin();
 		void update();
-		void open();
+		void open(const char *fileName);
         void close();
         void setSelectedMode();
         void setPlayingMode();
+		bool getIsOpen();
 	};
 }
 

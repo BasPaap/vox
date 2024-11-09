@@ -10,13 +10,13 @@ namespace Bas
     class AdafruitSSD1306Display : public Display
     {
         private:
-            int8_t width;
-            int8_t height;
+            uint8_t width;
+            uint8_t height;
 			uint8_t screenAddress;
-            int8_t textSize = 1;
+            uint8_t textSize = 1;
 			Adafruit_SSD1306 &ssd1306Display;
-            const int8_t fullScaleCharacterWidth = CHARACTER_WIDTH;
-            const int8_t fullScaleCharacterHeight = CHARACTER_HEIGHT;
+            const uint8_t fullScaleCharacterWidth = CHARACTER_WIDTH;
+            const uint8_t fullScaleCharacterHeight = CHARACTER_HEIGHT;
 			unsigned long dimStartTime;
 			const unsigned long dimDuration = 5000;
 			bool isDimmed;
@@ -24,10 +24,10 @@ namespace Bas
         public:
             AdafruitSSD1306Display(uint8_t width, uint8_t height, uint8_t screenAddress, Adafruit_SSD1306 &adafruitSsd1306Display) : width(width), height(height), screenAddress(screenAddress), ssd1306Display(adafruitSsd1306Display) {}
 			void begin();
-			int8_t getWidth() override;
-            int8_t getHeight() override;
-            int16_t getCharacterWidth() override;
-            int16_t getCharacterHeight() override;
+			uint8_t getWidth() override;
+            uint8_t getHeight() override;
+            uint16_t getCharacterWidth() override;
+            uint16_t getCharacterHeight() override;
             void clear() override;
             void enableWrapping(bool isEnabled = false) override;
             void setTextSize(uint8_t size) override;
@@ -39,6 +39,7 @@ namespace Bas
             void write(const char *buffer, size_t size) override;
             void update() override;
             void sleep(bool isSleeping) override;
+			void drawFilledRectangle(int16_t marginLeft, int16_t marginTop, int16_t marginRight, int16_t marginBottom) override;
     };
 }
 

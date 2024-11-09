@@ -16,7 +16,7 @@ const pin_size_t playerDataChipSelectPin = 7;
 const pin_size_t playerDataRequestPin = 2;
 
 // Const for an SSD1306 display
-const int8_t oledResetPin = -1; // Reset pin # (or -1 if sharing Arduino reset pin)
+const int8_t oledResetPin = -1;		// Reset pin # (or -1 if sharing Arduino reset pin)
 const uint8_t screenAddress = 0x3C; ///< See datasheet for Address; 0x3D for 128x64, 0x3C for 128x32
 
 // Const for SD card
@@ -42,7 +42,7 @@ Bas::SdFatFileBrowser fileBrowser(&sdCard);
 Bas::AdafruitVS1053AudioPlayer audioPlayer(playerResetPin, playerChipSelectPin, playerDataChipSelectPin, playerDataRequestPin, &sdCard);
 
 const size_t maxFilePathLength = 257; // 256 characters + zero terminator
-char selectedFilePath[maxFilePathLength] = { 0 };
+char selectedFilePath[maxFilePathLength] = {0};
 
 const char *versionText = "Vox v1.0.0";
 
@@ -52,7 +52,7 @@ void onActivity()
 	display.sleep(false);
 }
 
-void surroundWithSquareBrackets(char* text)
+void surroundWithSquareBrackets(char *text)
 {
 	char oldChar = text[0];
 	text[0] = '[';
@@ -95,7 +95,7 @@ void populateScrollingList()
 
 void onUpButtonPressed()
 {
-	if (inactivityTimer.getIsActive())
+	if (inactivityTimer.getIsActive() && !selectedTrackDialog.getIsOpen())
 	{
 		scrollingList.previousItem();
 	}
@@ -105,7 +105,7 @@ void onUpButtonPressed()
 
 void onDownButtonPressed()
 {
-	if (inactivityTimer.getIsActive())
+	if (inactivityTimer.getIsActive() && !selectedTrackDialog.getIsOpen())
 	{
 		scrollingList.nextItem();
 	}
@@ -117,30 +117,38 @@ void onSelectButtonPressed()
 {
 	if (inactivityTimer.getIsActive())
 	{
-		selectedFilePath[0] = '\0';
-		size_t selectedItemIndex = scrollingList.getSelectedItemIndex();
-
-		if (!fileBrowser.getIsAtRoot() && selectedItemIndex == 0)
+		if (selectedTrackDialog.getIsOpen())
 		{
-			// Serial.println("Going to parent directory.");
-			fileBrowser.goToParentDirectory();
-			// Serial.println("Populating scrolling list");
-			populateScrollingList();
+			selectedTrackDialog.close();
 		}
 		else
 		{
-			size_t fileIndex = fileBrowser.getIsAtRoot() ? selectedItemIndex : selectedItemIndex - 1;
+			selectedFilePath[0] = '\0';
+			size_t selectedItemIndex = scrollingList.getSelectedItemIndex();
 
-			if (fileBrowser.getIsDirectory(fileIndex))
+			if (!fileBrowser.getIsAtRoot() && selectedItemIndex == 0)
 			{
-				// Serial.print(F("Going to sub directory "));
-				// Serial.println(fileIndex);
-				fileBrowser.goToSubDirectory(fileIndex);
+				// Serial.println("Going to parent directory.");
+				fileBrowser.goToParentDirectory();
+				// Serial.println("Populating scrolling list");
 				populateScrollingList();
 			}
 			else
 			{
-				fileBrowser.getFilePath(fileIndex, selectedFilePath, maxFilePathLength);
+				size_t fileIndex = fileBrowser.getIsAtRoot() ? selectedItemIndex : selectedItemIndex - 1;
+
+				if (fileBrowser.getIsDirectory(fileIndex))
+				{
+					// Serial.print(F("Going to sub directory "));
+					// Serial.println(fileIndex);
+					fileBrowser.goToSubDirectory(fileIndex);
+					populateScrollingList();
+				}
+				else
+				{
+					fileBrowser.getFilePath(fileIndex, selectedFilePath, maxFilePathLength);
+					selectedTrackDialog.open(strrchr(selectedFilePath, '/') + 1);
+				}
 			}
 		}
 	}
@@ -213,7 +221,6 @@ void setup()
 	selectButton.begin(onSelectButtonPressed);
 	playButton.begin(onPlayButtonToggled, onPlayButtonToggled);
 	scrollingList.begin();
-	selectedTrackDialog.begin();
 	display.begin();
 	fileBrowser.begin();
 	audioPlayer.begin();

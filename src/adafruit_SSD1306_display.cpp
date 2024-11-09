@@ -13,22 +13,22 @@ void Bas::AdafruitSSD1306Display::begin()
 
 
 
-int8_t Bas::AdafruitSSD1306Display::getWidth()
+uint8_t Bas::AdafruitSSD1306Display::getWidth()
 {
     return width;
 }
 
-int8_t Bas::AdafruitSSD1306Display::getHeight()
+uint8_t Bas::AdafruitSSD1306Display::getHeight()
 {
     return height;
 }
 
-int16_t Bas::AdafruitSSD1306Display::getCharacterWidth()
+uint16_t Bas::AdafruitSSD1306Display::getCharacterWidth()
 {
     return fullScaleCharacterWidth * textSize;
 }
 
-int16_t Bas::AdafruitSSD1306Display::getCharacterHeight()
+uint16_t Bas::AdafruitSSD1306Display::getCharacterHeight()
 {
     return fullScaleCharacterHeight * textSize;
 }
@@ -111,3 +111,11 @@ void Bas::AdafruitSSD1306Display::sleep(bool isSleeping)
 	}
 }
 
+void Bas::AdafruitSSD1306Display::drawFilledRectangle(int16_t marginLeft, int16_t marginTop, int16_t marginRight, int16_t marginBottom)
+{
+	const int16_t radius = 5;
+	int16_t rectWidth = width - marginLeft - marginRight;
+	int16_t rectHeight = height - marginTop - marginBottom;
+
+	ssd1306Display.fillRoundRect(marginLeft, marginTop, rectWidth, rectHeight, radius, SSD1306_WHITE);
+}
