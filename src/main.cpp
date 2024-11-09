@@ -161,12 +161,14 @@ void onPlayButtonToggled()
 	if (audioPlayer.getIsPlaying())
 	{
 		audioPlayer.stopPlaying();
+		selectedTrackDialog.setSelectedMode();
 	}
 	else
 	{
 		if (strlen(selectedFilePath) > 0)
 		{
 			audioPlayer.startPlayingFile(selectedFilePath);
+			selectedTrackDialog.setPlayingMode();
 		}
 	}
 }
