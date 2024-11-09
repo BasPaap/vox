@@ -14,15 +14,12 @@ namespace Bas
 {
 	class SelectedTrackDialog
 	{
-	public:
-		enum class LogLevel { none = 0, normal };
-
 	private:
 		Display &display;
-		LogLevel logLevel;
+		bool isOpen;
 
 	public:
-		SelectedTrackDialog(Display &display, LogLevel logLevel = LogLevel::none);
+		SelectedTrackDialog(Display &display);
 		void begin();
 		void update();
 		void open();

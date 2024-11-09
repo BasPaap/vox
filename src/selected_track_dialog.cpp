@@ -1,6 +1,6 @@
 #include "selected_track_dialog.h"
 
-Bas::SelectedTrackDialog::SelectedTrackDialog(Display &display, LogLevel logLevel) : display(display), logLevel(logLevel)
+Bas::SelectedTrackDialog::SelectedTrackDialog(Display &display) : display(display)
 {
 }
 
