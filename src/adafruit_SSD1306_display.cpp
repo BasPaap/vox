@@ -54,6 +54,16 @@ void Bas::AdafruitSSD1306Display::setCursorPosition(int16_t x, int16_t y)
     ssd1306Display.setCursor(x, y);
 }
 
+int16_t Bas::AdafruitSSD1306Display::getCenteredCursorPositionX(const char *string)
+{
+	int16_t x;
+	int16_t y;
+	uint16_t textWidth;
+	uint16_t textHeight;
+	ssd1306Display.getTextBounds(string, 0, 0, &x, &y, &textWidth, &textHeight);
+
+	return (width/2) - (textWidth/2);
+}
 void Bas::AdafruitSSD1306Display::invertTextColor(bool isInverted)
 {
     if (isInverted)

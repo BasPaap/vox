@@ -32,6 +32,7 @@ namespace Bas
             void enableWrapping(bool isEnabled = false) override;
             void setTextSize(uint8_t size) override;
             void setCursorPosition(int16_t x, int16_t y) override;
+			int16_t getCenteredCursorPositionX(const char *string) override;
             void invertTextColor(bool isInverted = true) override;
             void write(uint8_t character) override;
             void write(const char *string) override;

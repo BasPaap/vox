@@ -8,14 +8,32 @@ void Bas::SelectedTrackDialog::update()
 {
 	if (isOpen)
 	{
-		display.drawFilledRectangle(0, 2, 0, 2);
+		const uint16_t horizontalMargin = 0;
+		const uint16_t verticalMargin = 0;
+		const uint16_t horizontalTextMargin = 2;
+		const uint16_t verticalTextMargin = 2;
+
+		display.clear();
+		display.drawFilledRectangle(horizontalMargin, verticalMargin, horizontalMargin, verticalMargin);
 		display.setTextSize(2);
 		display.invertTextColor();
-		display.setCursorPosition(2,4);
+		display.setCursorPosition(horizontalMargin + horizontalTextMargin, verticalMargin + verticalTextMargin);
 		display.write(currentFileName);
-		// Draw a rectangle
-		// Draw the current track name in double size
-		// Draw the current mode in single size
+		display.setTextSize(1);
+
+		const char *statusText;
+
+		if (currentMode == Mode::playing)
+		{
+		 	statusText = "speelt nu...";
+		}
+		else
+		{
+			statusText = "klaar om te spelen";
+		}
+
+		display.setCursorPosition(display.getCenteredCursorPositionX(statusText), (display.getCharacterHeight() * 2) + verticalMargin + verticalTextMargin + 1);
+		display.write(statusText);
 	}
 }
 
