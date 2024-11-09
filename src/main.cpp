@@ -8,6 +8,7 @@
 #include "inactivity_timer.h"
 #include "filebrowser/sdfat_file_browser.h"
 #include "audio/adafruit_VS1053_audio_player.h"
+#include "motor/motor.h"
 
 // Pins used by the sparkfun VS1053 shield
 const pin_size_t playerResetPin = 8;
@@ -23,10 +24,14 @@ const uint8_t screenAddress = 0x3C; ///< See datasheet for Address; 0x3D for 128
 const pin_size_t sdCardChipSelectPin = 9;
 
 // Button pins
-const int upButtonPin = A1;
-const int downButtonPin = A0;
-const int selectButtonPin = A2;
-const int playButtonPin = A3;
+const pin_size_t upButtonPin = A1;
+const pin_size_t downButtonPin = A0;
+const pin_size_t selectButtonPin = A2;
+const pin_size_t playButtonPin = A3;
+
+// Motor pins
+const pin_size_t motorAPin = 5;
+const pin_size_t motorBPin = 10;
 
 SdFs sdCard;
 Adafruit_SSD1306 adafruitSsd1306Display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, oledResetPin);
@@ -40,11 +45,15 @@ Bas::Button playButton(playButtonPin, 20);
 Bas::InactivityTimer inactivityTimer;
 Bas::SdFatFileBrowser fileBrowser(&sdCard);
 Bas::AdafruitVS1053AudioPlayer audioPlayer(playerResetPin, playerChipSelectPin, playerDataChipSelectPin, playerDataRequestPin, &sdCard);
+Bas::Motor motor(motorAPin, motorBPin);
 
 const size_t maxFilePathLength = 257; // 256 characters + zero terminator
 char selectedFilePath[maxFilePathLength] = {0};
 
+bool hasPlaybackStarted = false;
+
 const char *versionText = "Vox v1.0.0";
+
 
 void onActivity()
 {
@@ -163,6 +172,8 @@ void onPlayButtonToggled()
 	{
 		audioPlayer.stopPlaying();
 		selectedTrackDialog.setSelectedMode();
+		motor.stopSpinning();
+		hasPlaybackStarted = false;
 	}
 	else
 	{
@@ -170,6 +181,8 @@ void onPlayButtonToggled()
 		{
 			audioPlayer.startPlayingFile(selectedFilePath);
 			selectedTrackDialog.setPlayingMode();
+			motor.startSpinning();
+			hasPlaybackStarted = true;
 		}
 	}
 }
@@ -227,6 +240,7 @@ void setup()
 	display.begin();
 	fileBrowser.begin();
 	audioPlayer.begin();
+	motor.begin();
 
 	populateScrollingList();
 
@@ -235,6 +249,13 @@ void setup()
 
 void loop()
 {
+	if (hasPlaybackStarted && !audioPlayer.getIsPlaying())
+	{
+		// The track has finished.
+		selectedTrackDialog.close();
+		motor.stopSpinning();
+		hasPlaybackStarted = false;
+	}
 	inactivityTimer.update();
 	upButton.update();
 	downButton.update();
