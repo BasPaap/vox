@@ -95,7 +95,9 @@ void populateScrollingList()
 
 void onUpButtonPressed()
 {
-	if (inactivityTimer.getIsActive() && !selectedTrackDialog.getIsOpen())
+	if (inactivityTimer.getIsActive() &&
+	    !selectedTrackDialog.getIsOpen() &&
+		!audioPlayer.getIsPlaying())
 	{
 		scrollingList.previousItem();
 	}
@@ -105,7 +107,9 @@ void onUpButtonPressed()
 
 void onDownButtonPressed()
 {
-	if (inactivityTimer.getIsActive() && !selectedTrackDialog.getIsOpen())
+	if (inactivityTimer.getIsActive() &&
+		!selectedTrackDialog.getIsOpen() &&
+		!audioPlayer.getIsPlaying())
 	{
 		scrollingList.nextItem();
 	}
@@ -115,7 +119,8 @@ void onDownButtonPressed()
 
 void onSelectButtonPressed()
 {
-	if (inactivityTimer.getIsActive())
+	if (inactivityTimer.getIsActive() &&
+		!audioPlayer.getIsPlaying())
 	{
 		if (selectedTrackDialog.getIsOpen())
 		{
@@ -128,9 +133,7 @@ void onSelectButtonPressed()
 
 			if (!fileBrowser.getIsAtRoot() && selectedItemIndex == 0)
 			{
-				// Serial.println("Going to parent directory.");
 				fileBrowser.goToParentDirectory();
-				// Serial.println("Populating scrolling list");
 				populateScrollingList();
 			}
 			else
@@ -139,8 +142,6 @@ void onSelectButtonPressed()
 
 				if (fileBrowser.getIsDirectory(fileIndex))
 				{
-					// Serial.print(F("Going to sub directory "));
-					// Serial.println(fileIndex);
 					fileBrowser.goToSubDirectory(fileIndex);
 					populateScrollingList();
 				}
