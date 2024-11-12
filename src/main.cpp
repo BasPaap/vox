@@ -126,6 +126,27 @@ void onDownButtonPressed()
 	onActivity();
 }
 
+void onPlayButtonToggled()
+{
+	if (audioPlayer.getIsPlaying())
+	{
+		audioPlayer.stopPlaying();
+		selectedTrackDialog.setSelectedMode();
+		motor.stopSpinning();
+		hasPlaybackStarted = false;
+	}
+	else
+	{
+		if (strlen(selectedFilePath) > 0)
+		{
+			audioPlayer.startPlayingFile(selectedFilePath);
+			selectedTrackDialog.setPlayingMode();
+			motor.startSpinning();
+			hasPlaybackStarted = true;
+		}
+	}
+}
+
 void onSelectButtonPressed()
 {
 	if (inactivityTimer.getIsActive() &&
@@ -158,6 +179,7 @@ void onSelectButtonPressed()
 				{
 					fileBrowser.getFilePath(fileIndex, selectedFilePath, maxFilePathLength);
 					selectedTrackDialog.open(strrchr(selectedFilePath, '/') + 1);
+					// onPlayButtonToggled();
 				}
 			}
 		}
@@ -166,26 +188,7 @@ void onSelectButtonPressed()
 	onActivity();
 }
 
-void onPlayButtonToggled()
-{
-	if (audioPlayer.getIsPlaying())
-	{
-		audioPlayer.stopPlaying();
-		selectedTrackDialog.setSelectedMode();
-		motor.stopSpinning();
-		hasPlaybackStarted = false;
-	}
-	else
-	{
-		if (strlen(selectedFilePath) > 0)
-		{
-			audioPlayer.startPlayingFile(selectedFilePath);
-			selectedTrackDialog.setPlayingMode();
-			motor.startSpinning();
-			hasPlaybackStarted = true;
-		}
-	}
-}
+
 
 void showSplashScreen()
 {

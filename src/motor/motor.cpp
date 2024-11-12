@@ -10,9 +10,9 @@ void Bas::Motor::begin()
 
 void Bas::Motor::startSpinning()
 {
-	const int speed = 127;
+	const int speed = 60;
 	analogWrite(this->pinA, LOW);
-	analogWrite(this->pinB, 127);
+	analogWrite(this->pinB, speed);
 }
 
 void Bas::Motor::stopSpinning()
