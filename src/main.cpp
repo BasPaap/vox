@@ -33,6 +33,11 @@ const pin_size_t playButtonPin = A3;
 const pin_size_t motorAPin = 5;
 const pin_size_t motorBPin = 10;
 
+// Other consts
+const size_t maxFilePathLength = 257; // 256 characters + zero terminator
+const char *versionText = "Vox v1.0.0";
+const unsigned long motorWarmupTime = 2000;
+
 SdFs sdCard;
 Adafruit_SSD1306 adafruitSsd1306Display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, oledResetPin);
 Bas::AdafruitSSD1306Display display(SCREEN_WIDTH, SCREEN_HEIGHT, screenAddress, adafruitSsd1306Display);
@@ -47,12 +52,10 @@ Bas::SdFatFileBrowser fileBrowser(&sdCard);
 Bas::AdafruitVS1053AudioPlayer audioPlayer(playerResetPin, playerChipSelectPin, playerDataChipSelectPin, playerDataRequestPin, &sdCard);
 Bas::Motor motor(motorAPin, motorBPin);
 
-const size_t maxFilePathLength = 257; // 256 characters + zero terminator
 char selectedFilePath[maxFilePathLength] = {0};
-
 bool hasPlaybackStarted = false;
-
-const char *versionText = "Vox v1.0.0";
+bool hasMotorStarted = false;
+unsigned long motorStartTime;
 
 
 void onActivity()
@@ -128,21 +131,28 @@ void onDownButtonPressed()
 
 void onPlayButtonToggled()
 {
+	// The motor could be running without the audioplayer having started yet,
+	// so stop the motor either way if it runs.
+	if (hasMotorStarted)
+	{
+		hasMotorStarted = false;
+		motor.stopSpinning();
+	}
+
 	if (audioPlayer.getIsPlaying())
 	{
 		audioPlayer.stopPlaying();
 		selectedTrackDialog.setSelectedMode();
-		motor.stopSpinning();
 		hasPlaybackStarted = false;
 	}
 	else
 	{
 		if (strlen(selectedFilePath) > 0)
 		{
-			audioPlayer.startPlayingFile(selectedFilePath);
 			selectedTrackDialog.setPlayingMode();
 			motor.startSpinning();
-			hasPlaybackStarted = true;
+			hasMotorStarted = true;
+			motorStartTime = millis(); // Don't start playing the file just yet, the motor will start spinning for a few seconds and then the file will play.
 		}
 	}
 }
@@ -252,13 +262,23 @@ void setup()
 
 void loop()
 {
+	// If the motor has started but playback has not yet started, and the motor has been running for the
+	// required amout of time, start playback.
+	if (hasMotorStarted && !hasPlaybackStarted && millis() - motorStartTime >= motorWarmupTime)
+	{
+		hasPlaybackStarted = true;
+		audioPlayer.startPlayingFile(selectedFilePath);
+	}
+
 	if (hasPlaybackStarted && !audioPlayer.getIsPlaying())
 	{
 		// The track has finished.
 		selectedTrackDialog.close();
 		motor.stopSpinning();
+		hasMotorStarted = false;
 		hasPlaybackStarted = false;
 	}
+
 	inactivityTimer.update();
 	upButton.update();
 	downButton.update();
