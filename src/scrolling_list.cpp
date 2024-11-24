@@ -118,3 +118,8 @@ size_t Bas::ScrollingList::getSelectedItemIndex()
 {
     return selectedItemIndex;
 }
+
+bool Bas::ScrollingList::getIsAtLastItem()
+{
+	return selectedItemIndex == numItems - 1;
+}

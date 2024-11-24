@@ -36,7 +36,7 @@ const pin_size_t motorBPin = 10;
 // Other consts
 const size_t maxFilePathLength = 257; // 256 characters + zero terminator
 const char *versionText = "Vox v1.0.0";
-const unsigned long motorWarmupTime = 2000;
+const unsigned long motorWarmupTime = 1000;
 
 SdFs sdCard;
 Adafruit_SSD1306 adafruitSsd1306Display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, oledResetPin);
@@ -56,7 +56,7 @@ char selectedFilePath[maxFilePathLength] = {0};
 bool hasPlaybackStarted = false;
 bool hasMotorStarted = false;
 unsigned long motorStartTime;
-
+bool ignoreNextFallingSignal = false;
 
 void onActivity()
 {
@@ -129,26 +129,73 @@ void onDownButtonPressed()
 	onActivity();
 }
 
+
+
+
+
 void onPlayButtonToggled()
 {
+	Serial.println("Play button toggled.");
 	// The motor could be running without the audioplayer having started yet,
 	// so stop the motor either way if it runs.
 	if (hasMotorStarted)
 	{
+		Serial.println("Stopping motor");
 		hasMotorStarted = false;
 		motor.stopSpinning();
 	}
 
 	if (audioPlayer.getIsPlaying())
 	{
+		Serial.println("Stopping playback");
 		audioPlayer.stopPlaying();
 		selectedTrackDialog.setSelectedMode();
 		hasPlaybackStarted = false;
 	}
 	else
 	{
+		Serial.println("Ready to play!");
+		// If no file has been selected, look for the first file in the current directory and select it.
+		if (strlen(selectedFilePath) == 0)
+		{
+			Serial.println("No file selected when playing... searching first MP3.");
+
+			bool isAtLastItem = false;
+			do
+			{
+				size_t selectedItemIndex = scrollingList.getSelectedItemIndex();
+				size_t fileIndex = fileBrowser.getIsAtRoot() ? selectedItemIndex : selectedItemIndex - 1;
+
+				Serial.print(F("File at index "));
+				Serial.print(fileIndex);
+				Serial.print(" is ");
+				if (fileBrowser.getIsDirectory(fileIndex))
+				{
+					Serial.print("directory... ");
+					if (scrollingList.getIsAtLastItem())
+					{
+						Serial.println("and was the last one.");
+						isAtLastItem = true;
+					}
+					else
+					{
+						Serial.println("trying next item.");
+						scrollingList.nextItem();
+					}
+				}
+				else
+				{
+					Serial.print("File with the name ");
+					fileBrowser.getFilePath(fileIndex, selectedFilePath, maxFilePathLength);
+					Serial.println(selectedFilePath);
+				}
+			} while (strlen(selectedFilePath) == 0 && !isAtLastItem);
+		}
+
 		if (strlen(selectedFilePath) > 0)
 		{
+			Serial.print(F("Playing "));
+			Serial.println(selectedFilePath);
 			selectedTrackDialog.setPlayingMode();
 			motor.startSpinning();
 			hasMotorStarted = true;
@@ -231,6 +278,25 @@ void waitForSerial()
 	} // Wait until serial is available, or until the specified	time has elapsed
 }
 
+void rising()
+{
+	onPlayButtonToggled();
+	ignoreNextFallingSignal = false;
+}
+
+void falling()
+{
+	if (!ignoreNextFallingSignal)
+	{
+		Serial.println("Falling");
+		onPlayButtonToggled();
+	}
+	else
+	{
+		Serial.println("Falling, but ignored.");
+	}
+}
+
 void setup()
 {
 	Serial.begin(9600);
@@ -248,12 +314,20 @@ void setup()
 	upButton.begin(onUpButtonPressed);
 	downButton.begin(onDownButtonPressed);
 	selectButton.begin(onSelectButtonPressed);
-	playButton.begin(onPlayButtonToggled, onPlayButtonToggled);
+	playButton.begin(falling, rising);
 	scrollingList.begin();
 	display.begin();
 	fileBrowser.begin();
 	audioPlayer.begin();
 	motor.begin();
+
+	Serial.println("Checking play button...");
+	if (playButton.isPressed())
+	{
+		Serial.println("Ignoring next fall...");
+		// The play button is already pressed, ignore it when it says the signal has fallen (this will happen if it is toggled to LOW on startup.)
+		ignoreNextFallingSignal = true;
+	}
 
 	populateScrollingList();
 

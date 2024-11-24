@@ -41,6 +41,7 @@ namespace Bas
 		void previousItem();
 		size_t getNumItems();
 		size_t getSelectedItemIndex();
+		bool getIsAtLastItem();
 	};
 }
 
